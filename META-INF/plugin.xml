@@ -26,6 +26,13 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
+    <toolWindow
+      id="Intent Sender"
+      anchor="bottom"
+      factoryClass="MainToolWindow"
+      secondary="true">
+    </toolWindow>
+
   </extensions>
 
   <application-components>
