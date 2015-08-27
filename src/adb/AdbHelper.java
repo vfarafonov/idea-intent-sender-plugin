@@ -1,14 +1,21 @@
 package adb;
 
+import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.AndroidDebugBridge;
 import com.android.ddmlib.IDevice;
+import com.android.ddmlib.IShellOutputReceiver;
+import com.android.ddmlib.ShellCommandUnresponsiveException;
+import com.android.ddmlib.TimeoutException;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by vfarafonov on 26.08.2015.
  */
 public class AdbHelper {
+	public final static String COMMAND_SEND_BROADCAST = "am broadcast -a %1$s";
+
 	private AndroidDebugBridge adb_;
 	private static AdbHelper adbHelper_;
 	private final static Object lock = new Object();
@@ -78,5 +85,26 @@ public class AdbHelper {
 
 	public IDevice[] getDevices() {
 		return adb_.getDevices();
+	}
+
+	public void sendIntent(String action, IDevice device) throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException, IOException, IllegalArgumentException {
+		if (device == null){
+			throw new IllegalArgumentException("Device cannot be null");
+		}
+		String fullCommand = String.format(COMMAND_SEND_BROADCAST, action);
+		device.executeShellCommand(fullCommand, new IShellOutputReceiver() {
+			@Override
+			public void addOutput(byte[] bytes, int i, int i1) {
+			}
+
+			@Override
+			public void flush() {
+			}
+
+			@Override
+			public boolean isCancelled() {
+				return false;
+			}
+		});
 	}
 }
