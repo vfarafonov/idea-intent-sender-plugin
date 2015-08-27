@@ -28,8 +28,8 @@
     <!-- Add your extensions here -->
     <toolWindow
       id="Intent Sender"
-      anchor="bottom"
-      factoryClass="MainToolWindow"
+      anchor="right"
+      factoryClass="ui.MainToolWindow"
       secondary="true">
     </toolWindow>
 
