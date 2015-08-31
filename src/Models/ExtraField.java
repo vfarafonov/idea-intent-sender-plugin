@@ -5,7 +5,18 @@ package Models;
  */
 public class ExtraField {
 	public static enum ExtrasTypes{
-		STRING, INT, BOOLEAN;
+		STRING(" -e "), INT(" --ei "), BOOLEAN(" --ez "), NULL_EXTRA(" --esn "), LONG(" --el "),
+		FLOAT(" --ef "), URI(" --eu "), INT_ARRAY(" --eia "), LONG_ARRAY(" --ela "), FLOAT_ARRAY(" --efa ");
+
+		private final String prefix_;
+
+		ExtrasTypes(String prefix) {
+			prefix_ = prefix;
+		}
+
+		public String getPrefix() {
+			return prefix_;
+		}
 	}
 
 	private ExtrasTypes type_;

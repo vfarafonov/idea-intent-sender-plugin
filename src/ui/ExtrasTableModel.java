@@ -85,4 +85,8 @@ public class ExtrasTableModel extends AbstractTableModel {
 		values.remove(rowIndex);
 		fireTableRowsDeleted(rowIndex, rowIndex);
 	}
+
+	public List<ExtraField> getValues() {
+		return values;
+	}
 }

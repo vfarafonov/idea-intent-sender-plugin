@@ -9,36 +9,19 @@ import com.android.ddmlib.TimeoutException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+
+import Models.ExtraField;
 
 /**
  * Created by vfarafonov on 26.08.2015.
  */
 public class AdbHelper {
-	public static enum CommandType {
-		BROADCAST, START;
-	}
-
-	private static final String COMMAND_SEND_BROADCAST_BASE = "am broadcast ";
-	private static final String COMMAND_START_BASE = "am start ";
-
-	private AndroidDebugBridge adb_;
-	private static AdbHelper adbHelper_;
+	private static final String COMMAND_SEND_BROADCAST_BASE = "am broadcast";
+	private static final String COMMAND_START_BASE = "am start";
 	private final static Object lock = new Object();
-
-	public static AdbHelper getInstance() {
-		AdbHelper instance = adbHelper_;
-		if (instance == null) {
-			synchronized (lock) {    // While we were waiting for the lock, another
-				instance = adbHelper_;        // thread may have instantiated the object.
-				if (instance == null) {
-					instance = new AdbHelper();
-					adbHelper_ = instance;
-				}
-			}
-		}
-		return instance;
-	}
-
+	private static AdbHelper adbHelper_;
+	private AndroidDebugBridge adb_;
 	public AdbHelper() {
 		AndroidDebugBridge.init(false);
 		String adbLocation = getAdbLocation();
@@ -55,6 +38,20 @@ public class AdbHelper {
 			adb_.restart();
 			waitForDevices();
 		}
+	}
+
+	public static AdbHelper getInstance() {
+		AdbHelper instance = adbHelper_;
+		if (instance == null) {
+			synchronized (lock) {    // While we were waiting for the lock, another
+				instance = adbHelper_;        // thread may have instantiated the object.
+				if (instance == null) {
+					instance = new AdbHelper();
+					adbHelper_ = instance;
+				}
+			}
+		}
+		return instance;
 	}
 
 	/**
@@ -92,13 +89,15 @@ public class AdbHelper {
 		return adb_.getDevices();
 	}
 
-	public void sendCommand(CommandType type, IDevice device, String action, String data, String category, String mime, String component)
-			throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException, IOException, IllegalArgumentException {
+	public void sendCommand(CommandType type, IDevice device, String action, String data,
+							String category, String mime, String component, List<ExtraField> extras)
+			throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException,
+			IOException, IllegalArgumentException {
 		// TODO: implement sending data in separate thread
-		if (device == null){
+		if (device == null) {
 			throw new IllegalArgumentException("Device cannot be null");
 		}
-		String fullCommand = getFullCommand(type, action, data, category, mime, component);
+		String fullCommand = getFullCommand(type, action, data, category, mime, component, extras);
 		device.executeShellCommand(fullCommand, new IShellOutputReceiver() {
 			@Override
 			public void addOutput(byte[] bytes, int i, int i1) {
@@ -115,9 +114,9 @@ public class AdbHelper {
 		});
 	}
 
-	private String getFullCommand(CommandType type, String action, String data, String category, String mime, String component) {
+	private String getFullCommand(CommandType type, String action, String data, String category, String mime, String component, List<ExtraField> extras) {
 		StringBuilder builder = new StringBuilder();
-		switch (type){
+		switch (type) {
 			case BROADCAST:
 				builder.append(COMMAND_SEND_BROADCAST_BASE);
 				break;
@@ -125,22 +124,32 @@ public class AdbHelper {
 				builder.append(COMMAND_START_BASE);
 				break;
 		}
-		if (action != null && action.length() > 0){
-			builder.append("-a " + action + " ");
+		if (action != null && action.length() > 0) {
+			builder.append(" -a " + action);
 		}
-		if (data != null && data.length() > 0){
-			builder.append("-d " + data + " ");
+		if (data != null && data.length() > 0) {
+			builder.append(" -d " + data);
 		}
-		if (category != null && category.length() > 0){
-			builder.append("-c " + category + " ");
+		if (category != null && category.length() > 0) {
+			builder.append(" -c " + category);
 		}
-		if (mime != null && mime.length() > 0){
-			builder.append("-t " + mime + " ");
+		if (mime != null && mime.length() > 0) {
+			builder.append(" -t " + mime);
 		}
-		if (component != null && component.length() > 0){
-			builder.append("-n " + component + " ");
+		if (component != null && component.length() > 0) {
+			builder.append(" -n " + component);
+		}
+		// TODO: validate data
+		if (extras != null && extras.size() > 0) {
+			for (ExtraField extra : extras) {
+				builder.append(extra.getType().getPrefix() + extra.getKey() + " " + extra.getValue());
+			}
 		}
 		System.err.println("Command: " + builder.toString());
 		return builder.toString();
+	}
+
+	public static enum CommandType {
+		BROADCAST, START;
 	}
 }

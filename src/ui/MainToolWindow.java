@@ -11,6 +11,7 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -90,8 +91,9 @@ public class MainToolWindow implements ToolWindowFactory {
 		String category = categoryTextField.getText();
 		String mime = mimeTextField.getText();
 		String component = componentTextField.getText();
+		List<ExtraField> extras = tableModel_.getValues();
 		try {
-			AdbHelper.getInstance().sendCommand(type, (IDevice) device, action, data, category, mime, component);
+			AdbHelper.getInstance().sendCommand(type, (IDevice) device, action, data, category, mime, component, extras);
 		} catch (TimeoutException e) {
 			e.printStackTrace();
 		} catch (AdbCommandRejectedException e) {
