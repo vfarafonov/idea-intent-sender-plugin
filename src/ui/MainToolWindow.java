@@ -20,15 +20,17 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
+import Models.ExtraField;
 import adb.AdbHelper;
 
 /**
  * Created by vfarafonov on 25.08.2015.
  */
 public class MainToolWindow implements ToolWindowFactory {
+	private final ExtrasTableModel tableModel_;
 	private JPanel toolWindowContent;
 	private JLabel myLabel;
-	private JTable table1;
+	private JTable extrasTable;
 	private JButton addExtraButton;
 	private JTextField actionTextField;
 	private JComboBox devicesComboBox;
@@ -54,6 +56,18 @@ public class MainToolWindow implements ToolWindowFactory {
 		updateDevices.addActionListener(e -> updateConnectedDevices());
 		sendIntentButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.BROADCAST));
 		sendStartButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START));
+		addExtraButton.addActionListener(e -> addExtraLine());
+
+		// Set up extras table
+		tableModel_ = new ExtrasTableModel();
+		extrasTable.setModel(tableModel_);
+		extrasTable.setDefaultRenderer(ExtraField.ExtrasTypes.class, new ExtrasTypeCellRenderer());
+		extrasTable.setDefaultEditor(ExtraField.ExtrasTypes.class, new ExtrasTypeCellEditor());
+		extrasTable.setRowHeight((int) (extrasTable.getRowHeight() * 1.3));
+	}
+
+	private void addExtraLine() {
+		tableModel_.addRow(new ExtraField(ExtraField.ExtrasTypes.STRING, null, null));
 	}
 
 	/**
