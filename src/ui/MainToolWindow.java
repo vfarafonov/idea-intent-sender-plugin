@@ -19,6 +19,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.TableColumn;
 
 import Models.ExtraField;
 import adb.AdbHelper;
@@ -64,6 +65,9 @@ public class MainToolWindow implements ToolWindowFactory {
 		extrasTable.setDefaultRenderer(ExtraField.ExtrasTypes.class, new ExtrasTypeCellRenderer());
 		extrasTable.setDefaultEditor(ExtraField.ExtrasTypes.class, new ExtrasTypeCellEditor());
 		extrasTable.setRowHeight((int) (extrasTable.getRowHeight() * 1.3));
+		TableColumn removeColumn = extrasTable.getColumnModel().getColumn(ExtrasTableModel.COLUMNS_COUNT - 1);
+		removeColumn.setCellRenderer(new ExtrasDeleteButtonRenderer());
+		removeColumn.setCellEditor(new ExtrasDeleteButtonEditor(rowIndex -> tableModel_.removeRow(rowIndex)));
 	}
 
 	private void addExtraLine() {

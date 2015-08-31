@@ -45,7 +45,7 @@ public class ExtrasTableModel extends AbstractTableModel {
 
 	@Override
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		return columnIndex < COLUMNS_COUNT - 1;
+		return columnIndex < COLUMNS_COUNT;
 	}
 
 	@Override
@@ -79,5 +79,10 @@ public class ExtrasTableModel extends AbstractTableModel {
 	public void addRow(ExtraField field) {
 		values.add(field);
 		fireTableRowsInserted(values.size() - 1, values.size() - 1);
+	}
+
+	public void removeRow(int rowIndex) {
+		values.remove(rowIndex);
+		fireTableRowsDeleted(rowIndex, rowIndex);
 	}
 }
