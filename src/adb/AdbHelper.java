@@ -14,7 +14,12 @@ import java.io.IOException;
  * Created by vfarafonov on 26.08.2015.
  */
 public class AdbHelper {
-	public final static String COMMAND_SEND_BROADCAST = "am broadcast -a %1$s";
+	public static enum CommandType {
+		BROADCAST, START;
+	}
+
+	private static final String COMMAND_SEND_BROADCAST_BASE = "am broadcast ";
+	private static final String COMMAND_START_BASE = "am start ";
 
 	private AndroidDebugBridge adb_;
 	private static AdbHelper adbHelper_;
@@ -87,11 +92,13 @@ public class AdbHelper {
 		return adb_.getDevices();
 	}
 
-	public void sendIntent(String action, IDevice device) throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException, IOException, IllegalArgumentException {
+	public void sendCommand(CommandType type, IDevice device, String action, String data, String category, String mime, String component)
+			throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException, IOException, IllegalArgumentException {
+		// TODO: implement sending data in separate thread
 		if (device == null){
 			throw new IllegalArgumentException("Device cannot be null");
 		}
-		String fullCommand = String.format(COMMAND_SEND_BROADCAST, action);
+		String fullCommand = getFullCommand(type, action, data, category, mime, component);
 		device.executeShellCommand(fullCommand, new IShellOutputReceiver() {
 			@Override
 			public void addOutput(byte[] bytes, int i, int i1) {
@@ -106,5 +113,34 @@ public class AdbHelper {
 				return false;
 			}
 		});
+	}
+
+	private String getFullCommand(CommandType type, String action, String data, String category, String mime, String component) {
+		StringBuilder builder = new StringBuilder();
+		switch (type){
+			case BROADCAST:
+				builder.append(COMMAND_SEND_BROADCAST_BASE);
+				break;
+			case START:
+				builder.append(COMMAND_START_BASE);
+				break;
+		}
+		if (action != null && action.length() > 0){
+			builder.append("-a " + action + " ");
+		}
+		if (data != null && data.length() > 0){
+			builder.append("-d " + data + " ");
+		}
+		if (category != null && category.length() > 0){
+			builder.append("-c " + category + " ");
+		}
+		if (mime != null && mime.length() > 0){
+			builder.append("-t " + mime + " ");
+		}
+		if (component != null && component.length() > 0){
+			builder.append("-n " + component + " ");
+		}
+		System.err.println("Command: " + builder.toString());
+		return builder.toString();
 	}
 }

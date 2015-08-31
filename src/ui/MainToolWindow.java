@@ -34,6 +34,12 @@ public class MainToolWindow implements ToolWindowFactory {
 	private JComboBox devicesComboBox;
 	private JButton updateDevices;
 	private JButton sendIntentButton;
+	private JTextField dataTextField;
+	private JTextField categoryTextField;
+	private JTextField mimeTextField;
+	private JTextField componentTextField;
+	private JTextField flagsTextField;
+	private JButton sendStartButton;
 	private ToolWindow mainToolWindow;
 
 	private IDevice[] devices_ = {};
@@ -46,23 +52,28 @@ public class MainToolWindow implements ToolWindowFactory {
 		updateConnectedDevices();
 
 		updateDevices.addActionListener(e -> updateConnectedDevices());
-		sendIntentButton.addActionListener(e -> sendIntent());
+		sendIntentButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.BROADCAST));
+		sendStartButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START));
 	}
 
 	/**
 	 * Prepares intent parameters and initiates intent sending
 	 */
-	private void sendIntent() {
+	private void sendCommand(AdbHelper.CommandType type) {
 		// Check if device is selected
 		Object device = devicesComboBox.getSelectedItem();
-		if (device == null || !(device instanceof IDevice)){
+		if (device == null || !(device instanceof IDevice)) {
 			return;
 		}
 
 		// Prepare and send intent
 		String action = actionTextField.getText();
+		String data = dataTextField.getText();
+		String category = categoryTextField.getText();
+		String mime = mimeTextField.getText();
+		String component = componentTextField.getText();
 		try {
-			AdbHelper.getInstance().sendIntent(action, (IDevice) device);
+			AdbHelper.getInstance().sendCommand(type, (IDevice) device, action, data, category, mime, component);
 		} catch (TimeoutException e) {
 			e.printStackTrace();
 		} catch (AdbCommandRejectedException e) {
