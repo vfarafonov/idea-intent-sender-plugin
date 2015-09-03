@@ -18,6 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.TableColumn;
@@ -44,6 +45,7 @@ public class MainToolWindow implements ToolWindowFactory {
 	private JTextField componentTextField;
 	private JTextField flagsTextField;
 	private JButton sendStartButton;
+	private JScrollPane extasRootLayout;
 	private ToolWindow mainToolWindow;
 
 	private IDevice[] devices_ = {};
@@ -58,7 +60,10 @@ public class MainToolWindow implements ToolWindowFactory {
 		updateDevices.addActionListener(e -> updateConnectedDevices());
 		sendIntentButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.BROADCAST));
 		sendStartButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START));
-		addExtraButton.addActionListener(e -> addExtraLine());
+		addExtraButton.addActionListener(e -> {
+			addExtraLine();
+			updateTableVisibility();
+		});
 
 		// Set up extras table
 		tableModel_ = new ExtrasTableModel();
@@ -68,7 +73,29 @@ public class MainToolWindow implements ToolWindowFactory {
 		extrasTable.setRowHeight((int) (extrasTable.getRowHeight() * 1.3));
 		TableColumn removeColumn = extrasTable.getColumnModel().getColumn(ExtrasTableModel.COLUMNS_COUNT - 1);
 		removeColumn.setCellRenderer(new ExtrasDeleteButtonRenderer());
-		removeColumn.setCellEditor(new ExtrasDeleteButtonEditor(rowIndex -> tableModel_.removeRow(rowIndex)));
+		removeColumn.setCellEditor(new ExtrasDeleteButtonEditor(rowIndex -> {
+			tableModel_.removeRow(rowIndex);
+			updateTableVisibility();
+		}));
+	}
+
+	/**
+	 * Hides table if it does not have any rows. Shows otherwise
+	 */
+	private void updateTableVisibility() {
+		if (extrasTable.getRowCount() > 0) {
+			if (!extasRootLayout.isVisible()) {
+				extasRootLayout.setVisible(true);
+				extasRootLayout.getParent().revalidate();
+				extasRootLayout.getParent().repaint();
+			}
+		} else {
+			if (extasRootLayout.isVisible()) {
+				extasRootLayout.setVisible(false);
+				extasRootLayout.getParent().revalidate();
+				extasRootLayout.getParent().repaint();
+			}
+		}
 	}
 
 	private void addExtraLine() {

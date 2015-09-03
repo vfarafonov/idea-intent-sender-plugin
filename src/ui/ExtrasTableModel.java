@@ -12,6 +12,7 @@ import Models.ExtraField;
  */
 public class ExtrasTableModel extends AbstractTableModel {
 	public final static int COLUMNS_COUNT = 4;
+	private final static String[] COLUMN_NAMES = new String[] {"Type", "Key", "Value", ""};
 
 	private List<ExtraField> values;
 
@@ -88,5 +89,10 @@ public class ExtrasTableModel extends AbstractTableModel {
 
 	public List<ExtraField> getValues() {
 		return values;
+	}
+
+	@Override
+	public String getColumnName(int column) {
+		return COLUMN_NAMES[column];
 	}
 }

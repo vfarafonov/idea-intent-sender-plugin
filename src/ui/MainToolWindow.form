@@ -77,16 +77,6 @@
                   <text value="Intent parameters"/>
                 </properties>
               </component>
-              <component id="de52c" class="javax.swing.JTable" binding="extrasTable">
-                <constraints>
-                  <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="6" anchor="1" fill="1" indent="0" use-parent-layout="false">
-                    <preferred-size width="150" height="30"/>
-                  </grid>
-                </constraints>
-                <properties>
-                  <intercellSpacing width="1" height="1"/>
-                </properties>
-              </component>
               <component id="65819" class="javax.swing.JButton" binding="addExtraButton" default-binding="true">
                 <constraints>
                   <grid row="8" column="0" row-span="1" col-span="2" vsize-policy="4" hsize-policy="2" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
@@ -209,6 +199,24 @@
                   <text value=""/>
                 </properties>
               </component>
+              <scrollpane id="e7c4d" binding="extasRootLayout">
+                <constraints>
+                  <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="7" anchor="1" fill="1" indent="1" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <visible value="false"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="de52c" class="javax.swing.JTable" binding="extrasTable">
+                    <constraints/>
+                    <properties>
+                      <intercellSpacing width="1" height="1"/>
+                      <preferredScrollableViewportSize width="450" height="100"/>
+                    </properties>
+                  </component>
+                </children>
+              </scrollpane>
             </children>
           </grid>
         </children>
