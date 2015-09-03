@@ -22,22 +22,9 @@ public class AdbHelper {
 	private final static Object lock = new Object();
 	private static AdbHelper adbHelper_;
 	private AndroidDebugBridge adb_;
+
 	public AdbHelper() {
 		AndroidDebugBridge.init(false);
-		String adbLocation = getAdbLocation();
-		if (adbLocation != null) {
-			adb_ = AndroidDebugBridge.createBridge(adbLocation, true);
-		}
-		if (adb_ == null) {
-			return;
-		}
-		// TODO: move waiting to another thread
-		waitForDevices();
-
-		if (!adb_.isConnected()) {
-			adb_.restart();
-			waitForDevices();
-		}
 	}
 
 	public static AdbHelper getInstance() {
@@ -52,6 +39,29 @@ public class AdbHelper {
 			}
 		}
 		return instance;
+	}
+
+	/**
+	 * Picks up adb location from ANDROID_HOME environment variable
+	 */
+	public static String getAdbLocation() {
+		String android_home = System.getenv("ANDROID_HOME");
+		if (android_home != null) {
+			return new File(android_home, "platform-tools/adb").getAbsolutePath();
+		} else {
+			return null;
+		}
+	}
+
+	public boolean initAdb(String adbLocation) {
+		if (adbLocation != null && !adbLocation.isEmpty()) {
+			try {
+				adb_ = AndroidDebugBridge.createBridge(adbLocation, true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return adb_ != null;
 	}
 
 	/**
@@ -70,18 +80,6 @@ public class AdbHelper {
 			if (count > 100) {
 				return;
 			}
-		}
-	}
-
-	/**
-	 * Picks up adb location from ANDROID_HOME environment variable
-	 */
-	public String getAdbLocation() {
-		String android_home = System.getenv("ANDROID_HOME");
-		if (android_home != null) {
-			return new File(android_home, "platform-tools/adb").getAbsolutePath();
-		} else {
-			return null;
 		}
 	}
 
@@ -149,7 +147,15 @@ public class AdbHelper {
 		return builder.toString();
 	}
 
+	public boolean isConnected() {
+		return adb_.isConnected();
+	}
+
+	public void restartAdb() {
+		adb_.restart();
+	}
+
 	public static enum CommandType {
-		BROADCAST, START;
+		BROADCAST, START
 	}
 }
