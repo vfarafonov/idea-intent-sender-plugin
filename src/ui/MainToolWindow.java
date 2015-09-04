@@ -5,8 +5,12 @@ import com.android.ddmlib.IDevice;
 import com.android.ddmlib.ShellCommandUnresponsiveException;
 import com.android.ddmlib.TimeoutException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.popup.BalloonBuilder;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.ui.Gray;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 
@@ -36,6 +40,8 @@ import adb.AdbHelper;
  */
 public class MainToolWindow implements ToolWindowFactory {
 	public static final String UNKNOWN_ERROR = "Unknown error";
+	public static final int FADEOUT_TIME = 2000;
+	public static final String COMMAND_SUCCESS = "Command was successfully sent";
 	private final ExtrasTableModel tableModel_;
 	private JPanel toolWindowContent;
 	private JLabel myLabel;
@@ -72,7 +78,6 @@ public class MainToolWindow implements ToolWindowFactory {
 		} else {
 			startAdbAndSwitchUI(adbLocation);
 		}
-
 		updateDevices.addActionListener(e -> updateConnectedDevices());
 		sendIntentButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.BROADCAST));
 		sendStartButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START));
@@ -259,12 +264,27 @@ public class MainToolWindow implements ToolWindowFactory {
 		}.execute();
 	}
 
+	/**
+	 * Shows up appropriate popup
+	 *
+	 * @param error Message to display or null if success
+	 */
 	private void handleSendingResult(String error) {
+		JLabel label = new JLabel(COMMAND_SUCCESS);
+		label.setForeground(Gray._50);
+		BalloonBuilder builder = JBPopupFactory.getInstance().createBalloonBuilder(label);
+		builder.setFadeoutTime(FADEOUT_TIME)
+				.setShowCallout(false);
 		if (error == null) {
 			System.out.println("SUCCESS sending command");
+			builder.setFillColor(JBColor.BLUE);
 		} else {
-			System.out.println("sending command FAILED: " + error);
+			System.out.println("Sending command FAILED: " + error);
+			label.setText(error);
+			label.setForeground(Gray._0);
+			builder.setFillColor(JBColor.PINK);
 		}
+		builder.createBalloon().showInCenterOf(sendButtonsPanel);
 	}
 
 	private void updateConnectedDevices() {
