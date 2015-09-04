@@ -121,7 +121,7 @@ public class MainToolWindow implements ToolWindowFactory {
 		if (result != 0) {
 			flagsList_.setSelectedIndices(oldIndices);
 		} else {
-			if (flagsList_.getSelectedIndices().length > 1 && flagsList_.isSelectedIndex(0)){
+			if (flagsList_.getSelectedIndices().length > 1 && flagsList_.isSelectedIndex(0)) {
 				flagsList_.removeSelectionInterval(0, 0);
 			}
 			flagsTextField.setText(flagsList_.getSelectedValuesList().toString());
@@ -260,6 +260,7 @@ public class MainToolWindow implements ToolWindowFactory {
 		String mime = mimeTextField.getText();
 		String component = componentTextField.getText();
 		List<ExtraField> extras = tableModel_.getValues();
+		List<IntentFlags> flags = flagsList_.getSelectedValuesList();
 
 		sendStartButton.setEnabled(false);
 		sendIntentButton.setEnabled(false);
@@ -268,7 +269,7 @@ public class MainToolWindow implements ToolWindowFactory {
 			protected String doInBackground() throws Exception {
 				String error = null;
 				try {
-					error = AdbHelper.getInstance().sendCommand(type, (IDevice) device, action, data, category, mime, component, extras);
+					error = AdbHelper.getInstance().sendCommand(type, (IDevice) device, action, data, category, mime, component, extras, flags);
 				} catch (TimeoutException e) {
 					e.printStackTrace();
 				} catch (AdbCommandRejectedException e) {

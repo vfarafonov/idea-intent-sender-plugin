@@ -6,7 +6,7 @@ package Models;
 public enum IntentFlags {
 	NONE(""),
 	FLAG_GRANT_READ_URI_PERMISSION(" --grant-read-uri-permission"),
-	FLAG_GRANT_WRITE_URI_PERMISSION("--grant-write-uri-permission"),
+	FLAG_GRANT_WRITE_URI_PERMISSION(" --grant-write-uri-permission"),
 	FLAG_DEBUG_LOG_RESOLUTION(" --debug-log-resolution"),
 	FLAG_EXCLUDE_STOPPED_PACKAGES(" --exclude-stopped-packages"),
 	FLAG_INCLUDE_STOPPED_PACKAGES(" --include-stopped-packages"),

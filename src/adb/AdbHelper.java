@@ -13,6 +13,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import Models.ExtraField;
+import Models.IntentFlags;
 
 /**
  * Created by vfarafonov on 26.08.2015.
@@ -23,7 +24,6 @@ public class AdbHelper {
 	private final static Object lock = new Object();
 	private static AdbHelper adbHelper_;
 	private AndroidDebugBridge adb_;
-	private CommandProcessingListener listener_;
 	private String errorString_ = null;
 
 	public AdbHelper() {
@@ -92,17 +92,18 @@ public class AdbHelper {
 
 	/**
 	 * Sends command to device.
+	 *
 	 * @return Error message if something went wrong, null if it is no errors
 	 */
 	public String sendCommand(CommandType type, IDevice device, String action, String data,
-							String category, String mime, String component, List<ExtraField> extras)
+							  String category, String mime, String component, List<ExtraField> extras, List<IntentFlags> flags)
 			throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException,
 			IOException, IllegalArgumentException {
 		if (device == null) {
 			throw new IllegalArgumentException("Device cannot be null");
 		}
 		errorString_ = null;
-		String fullCommand = getFullCommand(type, action, data, category, mime, component, extras);
+		String fullCommand = getFullCommand(type, action, data, category, mime, component, extras, flags);
 		device.executeShellCommand(fullCommand, new IShellOutputReceiver() {
 
 			@Override
@@ -110,15 +111,15 @@ public class AdbHelper {
 				try {
 					String output = new String(bytes, "UTF-8");
 					int index = output.indexOf("Error:");
-					if (index == 0){
+					if (index == 0) {
 						int lineEndingIndex = output.indexOf("\n");
 						errorString_ = lineEndingIndex > -1 ? output.substring(0, lineEndingIndex) : output;
-					} else if (index > 0){
+					} else if (index > 0) {
 						Character beforeSymb = output.charAt(index - 1);
-						if (beforeSymb == '\n'){
+						if (beforeSymb == '\n') {
 							errorString_ = output.substring(index);
 							int lineEndingIndex = errorString_.indexOf("\n");
-							if (lineEndingIndex > -1){
+							if (lineEndingIndex > -1) {
 								errorString_ = errorString_.substring(0, lineEndingIndex);
 							}
 						}
@@ -129,7 +130,8 @@ public class AdbHelper {
 			}
 
 			@Override
-			public void flush() {}
+			public void flush() {
+			}
 
 			@Override
 			public boolean isCancelled() {
@@ -139,7 +141,7 @@ public class AdbHelper {
 		return errorString_;
 	}
 
-	private String getFullCommand(CommandType type, String action, String data, String category, String mime, String component, List<ExtraField> extras) {
+	private String getFullCommand(CommandType type, String action, String data, String category, String mime, String component, List<ExtraField> extras, List<IntentFlags> flags) {
 		StringBuilder builder = new StringBuilder();
 		switch (type) {
 			case BROADCAST:
@@ -164,13 +166,17 @@ public class AdbHelper {
 		if (component != null && component.length() > 0) {
 			builder.append(" -n " + component);
 		}
-		// TODO: validate data
 		if (extras != null && extras.size() > 0) {
 			for (ExtraField extra : extras) {
 				builder.append(extra.getType().getPrefix() + extra.getKey() + " " + extra.getValue());
 			}
 		}
-		System.err.println("Command: " + builder.toString());
+		if (flags != null && flags.size() > 0) {
+			for (IntentFlags flag : flags) {
+				builder.append(flag.getCommand());
+			}
+		}
+		System.out.println("Command: " + builder.toString());
 		return builder.toString();
 	}
 
@@ -182,15 +188,7 @@ public class AdbHelper {
 		adb_.restart();
 	}
 
-	public static enum CommandType {
+	public enum CommandType {
 		BROADCAST, START
-	}
-
-	public interface CommandProcessingListener{
-		void onExecuteFinished(String errorString);
-	}
-
-	public void setListener(CommandProcessingListener listener_) {
-		this.listener_ = listener_;
 	}
 }
