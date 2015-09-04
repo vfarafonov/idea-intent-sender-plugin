@@ -9,6 +9,7 @@ import com.android.ddmlib.TimeoutException;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import Models.ExtraField;
@@ -22,6 +23,8 @@ public class AdbHelper {
 	private final static Object lock = new Object();
 	private static AdbHelper adbHelper_;
 	private AndroidDebugBridge adb_;
+	private CommandProcessingListener listener_;
+	private String errorString_ = null;
 
 	public AdbHelper() {
 		AndroidDebugBridge.init(false);
@@ -87,29 +90,53 @@ public class AdbHelper {
 		return adb_.getDevices();
 	}
 
-	public void sendCommand(CommandType type, IDevice device, String action, String data,
+	/**
+	 * Sends command to device.
+	 * @return Error message if something went wrong, null if it is no errors
+	 */
+	public String sendCommand(CommandType type, IDevice device, String action, String data,
 							String category, String mime, String component, List<ExtraField> extras)
 			throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException,
 			IOException, IllegalArgumentException {
-		// TODO: implement sending data in separate thread
 		if (device == null) {
 			throw new IllegalArgumentException("Device cannot be null");
 		}
+		errorString_ = null;
 		String fullCommand = getFullCommand(type, action, data, category, mime, component, extras);
 		device.executeShellCommand(fullCommand, new IShellOutputReceiver() {
+
 			@Override
 			public void addOutput(byte[] bytes, int i, int i1) {
+				try {
+					String output = new String(bytes, "UTF-8");
+					int index = output.indexOf("Error:");
+					if (index == 0){
+						int lineEndingIndex = output.indexOf("\n");
+						errorString_ = lineEndingIndex > -1 ? output.substring(0, lineEndingIndex) : output;
+					} else if (index > 0){
+						Character beforeSymb = output.charAt(index - 1);
+						if (beforeSymb == '\n'){
+							errorString_ = output.substring(index);
+							int lineEndingIndex = errorString_.indexOf("\n");
+							if (lineEndingIndex > -1){
+								errorString_ = errorString_.substring(0, lineEndingIndex);
+							}
+						}
+					}
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				}
 			}
 
 			@Override
-			public void flush() {
-			}
+			public void flush() {}
 
 			@Override
 			public boolean isCancelled() {
 				return false;
 			}
 		});
+		return errorString_;
 	}
 
 	private String getFullCommand(CommandType type, String action, String data, String category, String mime, String component, List<ExtraField> extras) {
@@ -157,5 +184,13 @@ public class AdbHelper {
 
 	public static enum CommandType {
 		BROADCAST, START
+	}
+
+	public interface CommandProcessingListener{
+		void onExecuteFinished(String errorString);
+	}
+
+	public void setListener(CommandProcessingListener listener_) {
+		this.listener_ = listener_;
 	}
 }
