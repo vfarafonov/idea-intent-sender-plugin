@@ -13,6 +13,7 @@ import com.intellij.ui.content.ContentFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -34,6 +35,7 @@ import adb.AdbHelper;
  * Created by vfarafonov on 25.08.2015.
  */
 public class MainToolWindow implements ToolWindowFactory {
+	public static final String UNKNOWN_ERROR = "Unknown error";
 	private final ExtrasTableModel tableModel_;
 	private JPanel toolWindowContent;
 	private JLabel myLabel;
@@ -91,8 +93,6 @@ public class MainToolWindow implements ToolWindowFactory {
 			tableModel_.removeRow(rowIndex);
 			updateTableVisibility();
 		}));
-
-
 	}
 
 	/**
@@ -203,7 +203,7 @@ public class MainToolWindow implements ToolWindowFactory {
 	}
 
 	/**
-	 * Prepares intent parameters and initiates intent sending
+	 * Prepares intent parameters and sends command in worker thread
 	 */
 	private void sendCommand(AdbHelper.CommandType type) {
 		// Check if device is selected
@@ -219,18 +219,51 @@ public class MainToolWindow implements ToolWindowFactory {
 		String mime = mimeTextField.getText();
 		String component = componentTextField.getText();
 		List<ExtraField> extras = tableModel_.getValues();
-		try {
-			AdbHelper.getInstance().sendCommand(type, (IDevice) device, action, data, category, mime, component, extras);
-		} catch (TimeoutException e) {
-			e.printStackTrace();
-		} catch (AdbCommandRejectedException e) {
-			e.printStackTrace();
-		} catch (ShellCommandUnresponsiveException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+
+		sendStartButton.setEnabled(false);
+		sendIntentButton.setEnabled(false);
+		new SwingWorker<String, String>() {
+			@Override
+			protected String doInBackground() throws Exception {
+				String error = null;
+				try {
+					error = AdbHelper.getInstance().sendCommand(type, (IDevice) device, action, data, category, mime, component, extras);
+				} catch (TimeoutException e) {
+					e.printStackTrace();
+				} catch (AdbCommandRejectedException e) {
+					e.printStackTrace();
+				} catch (ShellCommandUnresponsiveException e) {
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				return error;
+			}
+
+			@Override
+			protected void done() {
+				String error;
+				try {
+					error = get();
+				} catch (InterruptedException e) {
+					error = e.getMessage() != null ? e.getMessage() : UNKNOWN_ERROR;
+				} catch (ExecutionException e) {
+					error = e.getMessage() != null ? e.getMessage() : UNKNOWN_ERROR;
+				}
+				handleSendingResult(error);
+				sendStartButton.setEnabled(true);
+				sendIntentButton.setEnabled(true);
+			}
+		}.execute();
+	}
+
+	private void handleSendingResult(String error) {
+		if (error == null) {
+			System.out.println("SUCCESS sending command");
+		} else {
+			System.out.println("sending command FAILED: " + error);
 		}
 	}
 
