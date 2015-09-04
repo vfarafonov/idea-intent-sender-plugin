@@ -11,11 +11,13 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
+import com.intellij.ui.components.JBList;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -24,6 +26,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -33,6 +36,7 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableColumn;
 
 import Models.ExtraField;
+import Models.IntentFlags;
 import adb.AdbHelper;
 
 /**
@@ -62,11 +66,14 @@ public class MainToolWindow implements ToolWindowFactory {
 	private JPanel sendButtonsPanel;
 	private JScrollPane parametersScrollPane;
 	private JLabel startingAdbLabel;
+	private JButton editFlags;
 	private ToolWindow mainToolWindow;
 
 	private IDevice[] devices_ = {};
+	private JBList flagsList_ = new JBList(Arrays.asList(IntentFlags.values()));
 
 	public MainToolWindow() {
+		flagsList_.setSelectedIndex(0);
 		// Initialize ComboBox
 		devicesComboBox.setRenderer(new DevicesListRenderer());
 		devicesComboBox.setMaximumRowCount(10);
@@ -82,6 +89,7 @@ public class MainToolWindow implements ToolWindowFactory {
 		updateDevices.addActionListener(e -> updateConnectedDevices());
 		sendIntentButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.BROADCAST));
 		sendStartButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START));
+		editFlags.addActionListener(e -> showFlagsDialog());
 		addExtraButton.addActionListener(e -> {
 			addExtraLine();
 			updateTableVisibility();
@@ -99,6 +107,25 @@ public class MainToolWindow implements ToolWindowFactory {
 			tableModel_.removeRow(rowIndex);
 			updateTableVisibility();
 		}));
+
+		flagsTextField.setText(flagsList_.getSelectedValuesList().toString());
+	}
+
+	/**
+	 * Displays dialog with intent flags picking up flow
+	 */
+	private void showFlagsDialog() {
+		int[] oldIndices = flagsList_.getSelectedIndices();
+		String[] buttons = {"OK", "Cancel"};
+		int result = JOptionPane.showOptionDialog(toolWindowContent, flagsList_, "Select flags", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, buttons, buttons[0]);
+		if (result != 0) {
+			flagsList_.setSelectedIndices(oldIndices);
+		} else {
+			if (flagsList_.getSelectedIndices().length > 1 && flagsList_.isSelectedIndex(0)){
+				flagsList_.removeSelectionInterval(0, 0);
+			}
+			flagsTextField.setText(flagsList_.getSelectedValuesList().toString());
+		}
 	}
 
 	/**
@@ -184,7 +211,7 @@ public class MainToolWindow implements ToolWindowFactory {
 		locateAdbButton.getParent().repaint();
 	}
 
-	public void hideUi(){
+	public void hideUi() {
 		devicesComboBox.setVisible(false);
 		updateDevices.setVisible(false);
 		parametersScrollPane.setVisible(false);
