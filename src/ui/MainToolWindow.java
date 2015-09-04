@@ -76,6 +76,7 @@ public class MainToolWindow implements ToolWindowFactory {
 		if (adbLocation == null) {
 			toggleLocateAdbVisibility(true);
 		} else {
+			hideUi();
 			startAdbAndSwitchUI(adbLocation);
 		}
 		updateDevices.addActionListener(e -> updateConnectedDevices());
@@ -104,7 +105,6 @@ public class MainToolWindow implements ToolWindowFactory {
 	 * Displays filepicker and checks if picked file is adb executable
 	 */
 	private void pickAdbLocation() {
-		System.out.println("pickAdbLocation");
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setFileFilter(new FileFilter() {
 			@Override
@@ -180,6 +180,15 @@ public class MainToolWindow implements ToolWindowFactory {
 		updateDevices.setVisible(!isLocateButtonVisible);
 		parametersScrollPane.setVisible(!isLocateButtonVisible);
 		sendButtonsPanel.setVisible(!isLocateButtonVisible);
+		locateAdbButton.getParent().revalidate();
+		locateAdbButton.getParent().repaint();
+	}
+
+	public void hideUi(){
+		devicesComboBox.setVisible(false);
+		updateDevices.setVisible(false);
+		parametersScrollPane.setVisible(false);
+		sendButtonsPanel.setVisible(false);
 		locateAdbButton.getParent().revalidate();
 		locateAdbButton.getParent().repaint();
 	}
