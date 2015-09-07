@@ -60,13 +60,14 @@ public class MainToolWindow implements ToolWindowFactory {
 	private JTextField mimeTextField;
 	private JTextField componentTextField;
 	private JTextField flagsTextField;
-	private JButton sendStartButton;
+	private JButton startActivityButton;
 	private JScrollPane extasRootLayout;
 	private JButton locateAdbButton;
 	private JPanel sendButtonsPanel;
 	private JScrollPane parametersScrollPane;
 	private JLabel startingAdbLabel;
 	private JButton editFlags;
+	private JButton startServiceButton;
 	private ToolWindow mainToolWindow;
 
 	private IDevice[] devices_ = {};
@@ -78,6 +79,9 @@ public class MainToolWindow implements ToolWindowFactory {
 		devicesComboBox.setRenderer(new DevicesListRenderer());
 		devicesComboBox.setMaximumRowCount(10);
 		// TODO: implement devices auto update
+		// TODO: add history
+		// TODO: class picker
+		// TODO: add applying editors change when start button is pressed
 		locateAdbButton.addActionListener(e -> pickAdbLocation());
 		String adbLocation = AdbHelper.getAdbLocation();
 		if (adbLocation == null) {
@@ -88,7 +92,8 @@ public class MainToolWindow implements ToolWindowFactory {
 		}
 		updateDevices.addActionListener(e -> updateConnectedDevices());
 		sendIntentButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.BROADCAST));
-		sendStartButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START));
+		startActivityButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START_ACTIVITY));
+		startServiceButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START_SERVICE));
 		editFlags.addActionListener(e -> showFlagsDialog());
 		addExtraButton.addActionListener(e -> {
 			addExtraLine();
@@ -262,7 +267,8 @@ public class MainToolWindow implements ToolWindowFactory {
 		List<ExtraField> extras = tableModel_.getValues();
 		List<IntentFlags> flags = flagsList_.getSelectedValuesList();
 
-		sendStartButton.setEnabled(false);
+		startActivityButton.setEnabled(false);
+		startServiceButton.setEnabled(false);
 		sendIntentButton.setEnabled(false);
 		new SwingWorker<String, String>() {
 			@Override
@@ -295,7 +301,8 @@ public class MainToolWindow implements ToolWindowFactory {
 					error = e.getMessage() != null ? e.getMessage() : UNKNOWN_ERROR;
 				}
 				handleSendingResult(error);
-				sendStartButton.setEnabled(true);
+				startActivityButton.setEnabled(true);
+				startServiceButton.setEnabled(true);
 				sendIntentButton.setEnabled(true);
 			}
 		}.execute();

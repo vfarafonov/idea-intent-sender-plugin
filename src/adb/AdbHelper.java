@@ -20,7 +20,8 @@ import Models.IntentFlags;
  */
 public class AdbHelper {
 	private static final String COMMAND_SEND_BROADCAST_BASE = "am broadcast";
-	private static final String COMMAND_START_BASE = "am start";
+	private static final String COMMAND_START_ACTIVITY_BASE = "am start";
+	private static final String COMMAND_START_SERVICE_BASE = "am startservice";
 	private final static Object lock = new Object();
 	private static AdbHelper adbHelper_;
 	private AndroidDebugBridge adb_;
@@ -147,8 +148,11 @@ public class AdbHelper {
 			case BROADCAST:
 				builder.append(COMMAND_SEND_BROADCAST_BASE);
 				break;
-			case START:
-				builder.append(COMMAND_START_BASE);
+			case START_ACTIVITY:
+				builder.append(COMMAND_START_ACTIVITY_BASE);
+				break;
+			case START_SERVICE:
+				builder.append(COMMAND_START_SERVICE_BASE);
 				break;
 		}
 		if (action != null && action.length() > 0) {
@@ -189,6 +193,6 @@ public class AdbHelper {
 	}
 
 	public enum CommandType {
-		BROADCAST, START
+		BROADCAST, START_SERVICE, START_ACTIVITY
 	}
 }
