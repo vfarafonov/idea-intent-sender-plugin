@@ -4,16 +4,29 @@ import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.IDevice;
 import com.android.ddmlib.ShellCommandUnresponsiveException;
 import com.android.ddmlib.TimeoutException;
+import com.intellij.facet.FacetManager;
+import com.intellij.ide.util.TreeJavaClassChooserDialog;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.popup.BalloonBuilder;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.psi.PsiClass;
 import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import com.intellij.util.xml.GenericAttributeValue;
+
+import org.jetbrains.android.dom.manifest.Manifest;
+import org.jetbrains.android.facet.AndroidFacet;
+import org.jetbrains.android.facet.AndroidRootUtil;
+import org.jetbrains.android.util.AndroidUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -68,10 +81,13 @@ public class MainToolWindow implements ToolWindowFactory {
 	private JLabel startingAdbLabel;
 	private JButton editFlags;
 	private JButton startServiceButton;
+	private JButton pickClassButton;
 	private ToolWindow mainToolWindow;
 
 	private IDevice[] devices_ = {};
 	private JBList flagsList_ = new JBList(Arrays.asList(IntentFlags.values()));
+	private JFileChooser fileChooser = new JFileChooser();
+	private Project project_;
 
 	public MainToolWindow() {
 		flagsList_.setSelectedIndex(0);
@@ -94,6 +110,7 @@ public class MainToolWindow implements ToolWindowFactory {
 		sendIntentButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.BROADCAST));
 		startActivityButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START_ACTIVITY));
 		startServiceButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START_SERVICE));
+		pickClassButton.addActionListener(e -> showClassPicker());
 		editFlags.addActionListener(e -> showFlagsDialog());
 		addExtraButton.addActionListener(e -> {
 			addExtraLine();
@@ -117,6 +134,66 @@ public class MainToolWindow implements ToolWindowFactory {
 	}
 
 	/**
+	 * Shows up class picker dialog from current project
+	 */
+	private void showClassPicker() {
+		TreeJavaClassChooserDialog dialog = new TreeJavaClassChooserDialog("Pick up component", project_);
+		dialog.setModal(true);
+		dialog.show();
+
+		PsiClass selectedClass = dialog.getSelected();
+
+		updateComponent(selectedClass);
+	}
+
+	/**
+	 * Updates component field from selected class
+	 */
+	private void updateComponent(PsiClass selectedClass) {
+		String androidPackage;
+		String fullComponentName;
+		if (selectedClass != null) {
+			androidPackage = getAndroidPackage(selectedClass);
+			fullComponentName = selectedClass.getQualifiedName();
+			if (androidPackage != null && !androidPackage.equals("") && fullComponentName != null) {
+				int packageIndex = fullComponentName.indexOf(androidPackage);
+				if (packageIndex != -1) {
+					StringBuilder builder = new StringBuilder(fullComponentName);
+					fullComponentName = builder.insert(packageIndex + androidPackage.length(), "/").toString();
+				}
+			}
+			componentTextField.setText(fullComponentName);
+		}
+	}
+
+	/**
+	 * Gets android app package from selected class
+	 *
+	 * @return Package or null if package cannot be parsed from sources
+	 */
+	private String getAndroidPackage(@NotNull PsiClass selectedClass) {
+		Module module = ProjectRootManager.getInstance(selectedClass.getProject()).getFileIndex().getModuleForFile(selectedClass.getContainingFile().getVirtualFile());
+		if (module == null) {
+			return null;
+		}
+		FacetManager facetManager = FacetManager.getInstance(module);
+		AndroidFacet facet = facetManager.getFacetByType(AndroidFacet.ID);
+		if (facet == null) {
+			return null;
+		}
+		VirtualFile manifestFile = AndroidRootUtil.getPrimaryManifestFile(facet);
+		if (manifestFile == null) {
+			return null;
+		}
+		Manifest manifest = AndroidUtils.loadDomElement(facet.getModule(), manifestFile, Manifest.class);
+		if (manifest == null) {
+			return null;
+		}
+		GenericAttributeValue<String> rootPackage = manifest.getPackage();
+		return rootPackage.getStringValue();
+	}
+
+	/**
 	 * Displays dialog with intent flags picking up flow
 	 */
 	private void showFlagsDialog() {
@@ -137,8 +214,8 @@ public class MainToolWindow implements ToolWindowFactory {
 	 * Displays filepicker and checks if picked file is adb executable
 	 */
 	private void pickAdbLocation() {
-		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setFileFilter(new FileFilter() {
+		JFileChooser adbFileChooser = new JFileChooser();
+		adbFileChooser.setFileFilter(new FileFilter() {
 			@Override
 			public boolean accept(File f) {
 				if (f.isDirectory()) {
@@ -160,9 +237,9 @@ public class MainToolWindow implements ToolWindowFactory {
 				return "Adb executable";
 			}
 		});
-		int returnValue = fileChooser.showDialog(toolWindowContent, "Pick");
+		int returnValue = adbFileChooser.showDialog(toolWindowContent, "Pick");
 		if (returnValue == JFileChooser.APPROVE_OPTION) {
-			File file = fileChooser.getSelectedFile();
+			File file = adbFileChooser.getSelectedFile();
 			startAdbAndSwitchUI(file.getAbsolutePath());
 		}
 	}
@@ -344,6 +421,7 @@ public class MainToolWindow implements ToolWindowFactory {
 
 	@Override
 	public void createToolWindowContent(Project project, ToolWindow toolWindow) {
+		project_ = project;
 		mainToolWindow = toolWindow;
 		ContentFactory factory = ContentFactory.SERVICE.getInstance();
 		Content content = factory.createContent(toolWindowContent, "", false);
