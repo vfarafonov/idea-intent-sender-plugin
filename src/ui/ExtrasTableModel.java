@@ -95,4 +95,10 @@ public class ExtrasTableModel extends AbstractTableModel {
 	public String getColumnName(int column) {
 		return COLUMN_NAMES[column];
 	}
+
+	public void removeAllRows() {
+		int count = values.size();
+		values.clear();
+		fireTableRowsDeleted(0, count);
+	}
 }

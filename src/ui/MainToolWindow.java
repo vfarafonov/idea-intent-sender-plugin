@@ -44,13 +44,16 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableColumn;
 
+import Models.Command;
 import Models.ExtraField;
 import Models.IntentFlags;
 import adb.AdbHelper;
+import utils.HistoryUtils;
 
 /**
  * Created by vfarafonov on 25.08.2015.
@@ -61,7 +64,6 @@ public class MainToolWindow implements ToolWindowFactory {
 	public static final String COMMAND_SUCCESS = "Command was successfully sent";
 	private final ExtrasTableModel tableModel_;
 	private JPanel toolWindowContent;
-	private JLabel myLabel;
 	private JTable extrasTable;
 	private JButton addExtraButton;
 	private JTextField actionTextField;
@@ -82,11 +84,11 @@ public class MainToolWindow implements ToolWindowFactory {
 	private JButton editFlags;
 	private JButton startServiceButton;
 	private JButton pickClassButton;
+	private JButton historyButton;
 	private ToolWindow mainToolWindow;
 
 	private IDevice[] devices_ = {};
 	private JBList flagsList_ = new JBList(Arrays.asList(IntentFlags.values()));
-	private JFileChooser fileChooser = new JFileChooser();
 	private Project project_;
 
 	public MainToolWindow() {
@@ -96,8 +98,10 @@ public class MainToolWindow implements ToolWindowFactory {
 		devicesComboBox.setMaximumRowCount(10);
 		// TODO: implement devices auto update
 		// TODO: add history
-		// TODO: class picker
 		// TODO: add applying editors change when start button is pressed
+		// TODO: save last adb path
+		// TODO: disable buttons when device not selected
+		// TODO: try to fix permission trouble when starting activities
 		locateAdbButton.addActionListener(e -> pickAdbLocation());
 		String adbLocation = AdbHelper.getAdbLocation();
 		if (adbLocation == null) {
@@ -116,6 +120,7 @@ public class MainToolWindow implements ToolWindowFactory {
 			addExtraLine();
 			updateTableVisibility();
 		});
+		historyButton.addActionListener(e -> showHistoryDialog());
 
 		// Set up extras table
 		tableModel_ = new ExtrasTableModel();
@@ -130,7 +135,50 @@ public class MainToolWindow implements ToolWindowFactory {
 			updateTableVisibility();
 		}));
 
-		flagsTextField.setText(flagsList_.getSelectedValuesList().toString());
+		updateFlagsTextField();
+	}
+
+	/**
+	 * Shows up history dialog
+	 */
+	private void showHistoryDialog() {
+		JBList commandsList = new JBList(HistoryUtils.getCommandsFromHistory());
+		commandsList.setCellRenderer(new HistoryListCellRenderer());
+		commandsList.setEmptyText("No data to display");
+		commandsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		String[] buttons = {"OK", "Cancel"};
+		int result = JOptionPane.showOptionDialog(toolWindowContent, commandsList, "Command history", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, buttons, buttons[0]);
+		if (result == 0) {
+			updateUiFromCommand((Command) commandsList.getSelectedValue());
+		}
+	}
+
+	/**
+	 * Fills up vies from given command
+	 */
+	private void updateUiFromCommand(Command command) {
+		actionTextField.setText(command.getAction());
+		dataTextField.setText(command.getData());
+		categoryTextField.setText(command.getCategory());
+		mimeTextField.setText(command.getMimeType());
+		componentTextField.setText(command.getComponent());
+		flagsList_.removeSelectionInterval(0, flagsList_.getItemsCount());
+		List<IntentFlags> flags = command.getFlags();
+		if (flags != null && flags.size() > 0) {
+			for (IntentFlags flag : command.getFlags()) {
+				flagsList_.setSelectedValue(flag, false);
+			}
+		}
+		updateFlagsTextField();
+		tableModel_.removeAllRows();
+		List<ExtraField> extras = command.getExtras();
+		if (extras != null && extras.size() > 0) {
+			for (ExtraField extra : extras) {
+				tableModel_.addRow(extra);
+			}
+		}
+		updateTableVisibility();
 	}
 
 	/**
@@ -206,8 +254,15 @@ public class MainToolWindow implements ToolWindowFactory {
 			if (flagsList_.getSelectedIndices().length > 1 && flagsList_.isSelectedIndex(0)) {
 				flagsList_.removeSelectionInterval(0, 0);
 			}
-			flagsTextField.setText(flagsList_.getSelectedValuesList().toString());
+			updateFlagsTextField();
 		}
+	}
+
+	/**
+	 * Updates flags text
+	 */
+	private void updateFlagsTextField() {
+		flagsTextField.setText(flagsList_.getSelectedValuesList().toString());
 	}
 
 	/**
@@ -343,6 +398,8 @@ public class MainToolWindow implements ToolWindowFactory {
 		String component = componentTextField.getText();
 		List<ExtraField> extras = tableModel_.getValues();
 		List<IntentFlags> flags = flagsList_.getSelectedValuesList();
+		flags.remove(IntentFlags.NONE);
+		Command command = new Command(action, data, category, mime, component, extras, flags, type);
 
 		startActivityButton.setEnabled(false);
 		startServiceButton.setEnabled(false);
@@ -352,7 +409,7 @@ public class MainToolWindow implements ToolWindowFactory {
 			protected String doInBackground() throws Exception {
 				String error = null;
 				try {
-					error = AdbHelper.getInstance().sendCommand(type, (IDevice) device, action, data, category, mime, component, extras, flags);
+					error = AdbHelper.getInstance().sendCommand(command, (IDevice) device);
 				} catch (TimeoutException e) {
 					e.printStackTrace();
 				} catch (AdbCommandRejectedException e) {
@@ -377,7 +434,7 @@ public class MainToolWindow implements ToolWindowFactory {
 				} catch (ExecutionException e) {
 					error = e.getMessage() != null ? e.getMessage() : UNKNOWN_ERROR;
 				}
-				handleSendingResult(error);
+				handleSendingResult(error, command);
 				startActivityButton.setEnabled(true);
 				startServiceButton.setEnabled(true);
 				sendIntentButton.setEnabled(true);
@@ -388,9 +445,10 @@ public class MainToolWindow implements ToolWindowFactory {
 	/**
 	 * Shows up appropriate popup
 	 *
-	 * @param error Message to display or null if success
+	 * @param error   Message to display or null if success
+	 * @param command Sent command
 	 */
-	private void handleSendingResult(String error) {
+	private void handleSendingResult(String error, Command command) {
 		JLabel label = new JLabel(COMMAND_SUCCESS);
 		label.setForeground(Gray._50);
 		BalloonBuilder builder = JBPopupFactory.getInstance().createBalloonBuilder(label);
@@ -399,6 +457,7 @@ public class MainToolWindow implements ToolWindowFactory {
 		if (error == null) {
 			System.out.println("SUCCESS sending command");
 			builder.setFillColor(JBColor.BLUE);
+			HistoryUtils.saveCommand(command);
 		} else {
 			System.out.println("Sending command FAILED: " + error);
 			label.setText(error);

@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import Models.Command;
 import Models.ExtraField;
 import Models.IntentFlags;
 
@@ -190,6 +191,15 @@ public class AdbHelper {
 
 	public void restartAdb() {
 		adb_.restart();
+	}
+
+	/**
+	 * Sends command to device.
+	 *
+	 * @return Error message if something went wrong, null if it is no errors
+	 */
+	public String sendCommand(Command command, IDevice device) throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException, IOException {
+		return sendCommand(command.getType(), device, command.getAction(), command.getData(), command.getCategory(), command.getMimeType(), command.getComponent(), command.getExtras(), command.getFlags());
 	}
 
 	public enum CommandType {
