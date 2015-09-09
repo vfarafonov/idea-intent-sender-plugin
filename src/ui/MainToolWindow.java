@@ -97,11 +97,11 @@ public class MainToolWindow implements ToolWindowFactory {
 		devicesComboBox.setRenderer(new DevicesListRenderer());
 		devicesComboBox.setMaximumRowCount(10);
 		// TODO: implement devices auto update
-		// TODO: add history
 		// TODO: add applying editors change when start button is pressed
 		// TODO: save last adb path
-		// TODO: disable buttons when device not selected
 		// TODO: try to fix permission trouble when starting activities
+		// TODO: save custom adb path
+		// TODO: try to find adb not only from android_home but also from gradle/android plugin (if possible) and project's local.properties
 		locateAdbButton.addActionListener(e -> pickAdbLocation());
 		String adbLocation = AdbHelper.getAdbLocation();
 		if (adbLocation == null) {
@@ -401,9 +401,7 @@ public class MainToolWindow implements ToolWindowFactory {
 		flags.remove(IntentFlags.NONE);
 		Command command = new Command(action, data, category, mime, component, extras, flags, type);
 
-		startActivityButton.setEnabled(false);
-		startServiceButton.setEnabled(false);
-		sendIntentButton.setEnabled(false);
+		toggleStartButtonsAvailability(false);
 		new SwingWorker<String, String>() {
 			@Override
 			protected String doInBackground() throws Exception {
@@ -435,11 +433,15 @@ public class MainToolWindow implements ToolWindowFactory {
 					error = e.getMessage() != null ? e.getMessage() : UNKNOWN_ERROR;
 				}
 				handleSendingResult(error, command);
-				startActivityButton.setEnabled(true);
-				startServiceButton.setEnabled(true);
-				sendIntentButton.setEnabled(true);
+				toggleStartButtonsAvailability(true);
 			}
 		}.execute();
+	}
+
+	private void toggleStartButtonsAvailability(boolean isEnabled) {
+		startActivityButton.setEnabled(isEnabled);
+		startServiceButton.setEnabled(isEnabled);
+		sendIntentButton.setEnabled(isEnabled);
 	}
 
 	/**
@@ -473,8 +475,10 @@ public class MainToolWindow implements ToolWindowFactory {
 		if (devices_.length == 0) {
 			String[] emptyList = {"Devices not found"};
 			devicesComboBox.setModel(new DefaultComboBoxModel<String>(emptyList));
+			toggleStartButtonsAvailability(false);
 		} else {
 			devicesComboBox.setModel(new DefaultComboBoxModel<IDevice>(devices_));
+			toggleStartButtonsAvailability(true);
 		}
 	}
 
