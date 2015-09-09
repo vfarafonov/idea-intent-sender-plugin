@@ -14,7 +14,7 @@ public enum IntentFlags {
 	FLAG_ACTIVITY_CLEAR_TOP(" --activity-clear-top"),
 	FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET(" --activity-clear-when-task-reset"),
 	FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS(" --activity-exclude-from-recents"),
-	FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY("--activity-launched-from-history"),
+	FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY(" --activity-launched-from-history"),
 	FLAG_ACTIVITY_MULTIPLE_TASK(" --activity-multiple-task"),
 	FLAG_ACTIVITY_NO_ANIMATION(" --activity-no-animation"),
 	FLAG_ACTIVITY_NO_HISTORY(" --activity-no-history"),
