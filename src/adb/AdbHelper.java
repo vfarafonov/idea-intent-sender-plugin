@@ -6,10 +6,14 @@ import com.android.ddmlib.IDevice;
 import com.android.ddmlib.IShellOutputReceiver;
 import com.android.ddmlib.ShellCommandUnresponsiveException;
 import com.android.ddmlib.TimeoutException;
+import com.intellij.ide.util.PropertiesComponent;
+
+import org.jetbrains.android.sdk.AndroidSdkUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
 import java.util.List;
 
 import Models.Command;
@@ -20,10 +24,12 @@ import Models.IntentFlags;
  * Created by vfarafonov on 26.08.2015.
  */
 public class AdbHelper {
+	public static final String ADB_PATH_RELATIVE_TO_SDK_ROOT = "/platform-tools/adb";
 	private static final String COMMAND_SEND_BROADCAST_BASE = "am broadcast";
 	private static final String COMMAND_START_ACTIVITY_BASE = "am start";
 	private static final String COMMAND_START_SERVICE_BASE = "am startservice";
 	private final static Object lock = new Object();
+	private static final String ADB_PATH_KEY = "Adb_location";
 	private static AdbHelper adbHelper_;
 	private AndroidDebugBridge adb_;
 	private String errorString_ = null;
@@ -47,15 +53,51 @@ public class AdbHelper {
 	}
 
 	/**
-	 * Picks up adb location from ANDROID_HOME environment variable
+	 * Picks up adb location from plugin properties, AndroidSdkUtils or ANDROID_HOME environment variable
 	 */
 	public static String getAdbLocation() {
+		PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+		String adbPath = propertiesComponent.getValue(ADB_PATH_KEY);
+		if (adbPath != null) {
+			if (checkForAdbInPath(adbPath)) {
+				return adbPath;
+			}
+		}
+		Collection<String> sdkList = AndroidSdkUtils.getAndroidSdkPathsFromExistingPlatforms();
+		if (sdkList.size() > 0) {
+			String sdkPath = sdkList.iterator().next() + ADB_PATH_RELATIVE_TO_SDK_ROOT;
+			if (checkForAdbInPath(sdkPath)) {
+				saveAdbLocation(sdkPath);
+				return sdkPath;
+			}
+		}
 		String android_home = System.getenv("ANDROID_HOME");
 		if (android_home != null) {
-			return new File(android_home, "platform-tools/adb").getAbsolutePath();
-		} else {
-			return null;
+			String sdkPath = android_home + ADB_PATH_RELATIVE_TO_SDK_ROOT;
+			if (checkForAdbInPath(sdkPath)) {
+				saveAdbLocation(sdkPath);
+				return sdkPath;
+			}
 		}
+		return null;
+	}
+
+	/**
+	 * Checks if specified adb directory exists and has adb file
+	 */
+	private static boolean checkForAdbInPath(String adbPath) {
+		File adbDir = new File(adbPath).getParentFile();
+		return adbDir.exists() &&
+				adbDir.isDirectory() &&
+				adbDir.list((dir, name) -> name.indexOf("adb") == 0).length > 0;
+	}
+
+	/**
+	 * Saves adb location to plugin properties
+	 */
+	public static void saveAdbLocation(String adbLocation) {
+		PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+		propertiesComponent.setValue(ADB_PATH_KEY, adbLocation);
 	}
 
 	public boolean initAdb(String adbLocation) {

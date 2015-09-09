@@ -295,14 +295,13 @@ public class MainToolWindow implements ToolWindowFactory {
 		int returnValue = adbFileChooser.showDialog(toolWindowContent, "Pick");
 		if (returnValue == JFileChooser.APPROVE_OPTION) {
 			File file = adbFileChooser.getSelectedFile();
+			AdbHelper.saveAdbLocation(file.getAbsolutePath());
 			startAdbAndSwitchUI(file.getAbsolutePath());
 		}
 	}
 
 	/**
 	 * Checks if adb is connected and switches UI accordingly
-	 *
-	 * @param adbPath
 	 */
 	private void startAdbAndSwitchUI(String adbPath) {
 		AdbHelper adbHelper = AdbHelper.getInstance();
