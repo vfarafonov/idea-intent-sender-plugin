@@ -1,6 +1,7 @@
 package ui;
 
 import com.android.ddmlib.AdbCommandRejectedException;
+import com.android.ddmlib.AndroidDebugBridge;
 import com.android.ddmlib.IDevice;
 import com.android.ddmlib.ShellCommandUnresponsiveException;
 import com.android.ddmlib.TimeoutException;
@@ -46,6 +47,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableColumn;
@@ -93,13 +95,28 @@ public class MainToolWindow implements ToolWindowFactory {
 	private IDevice[] devices_ = {};
 	private JBList flagsList_ = new JBList(Arrays.asList(IntentFlags.values()));
 	private Project project_;
+	private AndroidDebugBridge.IDeviceChangeListener devicesListener_ = new AndroidDebugBridge.IDeviceChangeListener() {
+		@Override
+		public void deviceConnected(IDevice iDevice) {
+			SwingUtilities.invokeLater(() -> updateConnectedDevices());
+		}
+
+		@Override
+		public void deviceDisconnected(IDevice iDevice) {
+			SwingUtilities.invokeLater(() -> updateConnectedDevices());
+		}
+
+		@Override
+		public void deviceChanged(IDevice iDevice, int i) {
+			SwingUtilities.invokeLater(() -> updateConnectedDevices());
+		}
+	};
 
 	public MainToolWindow() {
 		flagsList_.setSelectedIndex(0);
 		// Initialize ComboBox
 		devicesComboBox.setRenderer(new DevicesListRenderer());
 		devicesComboBox.setMaximumRowCount(10);
-		// TODO: implement devices auto update
 		locateAdbButton.addActionListener(e -> pickAdbLocation());
 		String adbLocation = AdbHelper.getAdbLocation();
 		if (adbLocation == null) {
@@ -306,7 +323,7 @@ public class MainToolWindow implements ToolWindowFactory {
 	 */
 	private void startAdbAndSwitchUI(String adbPath) {
 		AdbHelper adbHelper = AdbHelper.getInstance();
-		if (adbHelper.initAdb(adbPath)) {
+		if (adbHelper.initAdb(adbPath, devicesListener_)) {
 			if (!adbHelper.isConnected()) {
 				locateAdbButton.setVisible(false);
 				startingAdbLabel.setVisible(true);
@@ -400,9 +417,9 @@ public class MainToolWindow implements ToolWindowFactory {
 		String mime = mimeTextField.getText();
 		String component = componentTextField.getText();
 		String user = null;
-		if (addUserCheckBox.isSelected()){
+		if (addUserCheckBox.isSelected()) {
 			String text = userTextField.getText();
-			if (text != null && text.length() > 0){
+			if (text != null && text.length() > 0) {
 				user = text;
 			}
 		}
@@ -479,8 +496,16 @@ public class MainToolWindow implements ToolWindowFactory {
 		builder.createBalloon().showInCenterOf(sendButtonsPanel);
 	}
 
+	/**
+	 * Updates devices list keeping selected device if it is still connected
+	 */
 	private void updateConnectedDevices() {
 		AdbHelper helper = AdbHelper.getInstance();
+		String selectedSerial = null;
+		Object selectedItem = devicesComboBox.getSelectedItem();
+		if (selectedItem != null && selectedItem instanceof IDevice) {
+			selectedSerial = ((IDevice) selectedItem).getSerialNumber();
+		}
 		devices_ = helper.getDevices();
 		if (devices_.length == 0) {
 			String[] emptyList = {"Devices not found"};
@@ -488,8 +513,26 @@ public class MainToolWindow implements ToolWindowFactory {
 			toggleStartButtonsAvailability(false);
 		} else {
 			devicesComboBox.setModel(new DefaultComboBoxModel<IDevice>(devices_));
+			devicesComboBox.setSelectedIndex(findSelectionIndex(selectedSerial));
 			toggleStartButtonsAvailability(true);
 		}
+	}
+
+	/**
+	 * Finds device index from list by serial number
+	 *
+	 * @return Device index in a list. Default value - 0
+	 */
+	private int findSelectionIndex(String selectedSerial) {
+		if (selectedSerial == null) {
+			return 0;
+		}
+		for (int i = 0; i < devices_.length; i++) {
+			if (devices_[i].getSerialNumber().equals(selectedSerial)) {
+				return i;
+			}
+		}
+		return 0;
 	}
 
 	@Override

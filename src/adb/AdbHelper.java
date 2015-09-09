@@ -100,10 +100,13 @@ public class AdbHelper {
 		propertiesComponent.setValue(ADB_PATH_KEY, adbLocation);
 	}
 
-	public boolean initAdb(String adbLocation) {
+	public boolean initAdb(String adbLocation, AndroidDebugBridge.IDeviceChangeListener listener) {
 		if (adbLocation != null && !adbLocation.isEmpty()) {
 			try {
 				adb_ = AndroidDebugBridge.createBridge(adbLocation, true);
+				if (adb_ != null) {
+					adb_.addDeviceChangeListener(listener);
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
