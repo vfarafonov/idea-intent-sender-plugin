@@ -36,6 +36,7 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -85,6 +86,8 @@ public class MainToolWindow implements ToolWindowFactory {
 	private JButton startServiceButton;
 	private JButton pickClassButton;
 	private JButton historyButton;
+	private JTextField userTextField;
+	private JCheckBox addUserCheckBox;
 	private ToolWindow mainToolWindow;
 
 	private IDevice[] devices_ = {};
@@ -97,8 +100,6 @@ public class MainToolWindow implements ToolWindowFactory {
 		devicesComboBox.setRenderer(new DevicesListRenderer());
 		devicesComboBox.setMaximumRowCount(10);
 		// TODO: implement devices auto update
-		// TODO: add applying editors change when start button is pressed
-		// TODO: try to fix permission trouble when starting activities
 		locateAdbButton.addActionListener(e -> pickAdbLocation());
 		String adbLocation = AdbHelper.getAdbLocation();
 		if (adbLocation == null) {
@@ -208,6 +209,7 @@ public class MainToolWindow implements ToolWindowFactory {
 					StringBuilder builder = new StringBuilder(fullComponentName);
 					fullComponentName = builder.insert(packageIndex + androidPackage.length(), "/").toString();
 				}
+				userTextField.setText(androidPackage);
 			}
 			componentTextField.setText(fullComponentName);
 		}
@@ -397,10 +399,17 @@ public class MainToolWindow implements ToolWindowFactory {
 		String category = categoryTextField.getText();
 		String mime = mimeTextField.getText();
 		String component = componentTextField.getText();
+		String user = null;
+		if (addUserCheckBox.isSelected()){
+			String text = userTextField.getText();
+			if (text != null && text.length() > 0){
+				user = text;
+			}
+		}
 		List<ExtraField> extras = tableModel_.getValues();
 		List<IntentFlags> flags = flagsList_.getSelectedValuesList();
 		flags.remove(IntentFlags.NONE);
-		Command command = new Command(action, data, category, mime, component, extras, flags, type);
+		Command command = new Command(action, data, category, mime, component, user, extras, flags, type);
 
 		toggleStartButtonsAvailability(false);
 		new SwingWorker<String, String>() {

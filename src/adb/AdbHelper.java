@@ -140,14 +140,15 @@ public class AdbHelper {
 	 * @return Error message if something went wrong, null if it is no errors
 	 */
 	public String sendCommand(CommandType type, IDevice device, String action, String data,
-							  String category, String mime, String component, List<ExtraField> extras, List<IntentFlags> flags)
+							  String category, String mime, String component, String user,
+							  List<ExtraField> extras, List<IntentFlags> flags)
 			throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException,
 			IOException, IllegalArgumentException {
 		if (device == null) {
 			throw new IllegalArgumentException("Device cannot be null");
 		}
 		errorString_ = null;
-		String fullCommand = getFullCommand(type, action, data, category, mime, component, extras, flags);
+		String fullCommand = getFullCommand(type, action, data, category, mime, component, user, extras, flags);
 		device.executeShellCommand(fullCommand, new IShellOutputReceiver() {
 
 			@Override
@@ -185,8 +186,13 @@ public class AdbHelper {
 		return errorString_;
 	}
 
-	private String getFullCommand(CommandType type, String action, String data, String category, String mime, String component, List<ExtraField> extras, List<IntentFlags> flags) {
+	private String getFullCommand(CommandType type, String action, String data, String category, String mime, String component, String user, List<ExtraField> extras, List<IntentFlags> flags) {
 		StringBuilder builder = new StringBuilder();
+		if (user != null) {
+			builder.append("run-as ");
+			builder.append(user);
+			builder.append(" ");
+		}
 		switch (type) {
 			case BROADCAST:
 				builder.append(COMMAND_SEND_BROADCAST_BASE);
@@ -223,6 +229,9 @@ public class AdbHelper {
 				builder.append(flag.getCommand());
 			}
 		}
+		if (user != null) {
+			builder.append(" --user '0'");
+		}
 		System.out.println("Command: " + builder.toString());
 		return builder.toString();
 	}
@@ -241,7 +250,7 @@ public class AdbHelper {
 	 * @return Error message if something went wrong, null if it is no errors
 	 */
 	public String sendCommand(Command command, IDevice device) throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException, IOException {
-		return sendCommand(command.getType(), device, command.getAction(), command.getData(), command.getCategory(), command.getMimeType(), command.getComponent(), command.getExtras(), command.getFlags());
+		return sendCommand(command.getType(), device, command.getAction(), command.getData(), command.getCategory(), command.getMimeType(), command.getComponent(), command.getUser(), command.getExtras(), command.getFlags());
 	}
 
 	public enum CommandType {
