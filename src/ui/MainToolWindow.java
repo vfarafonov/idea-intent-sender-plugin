@@ -98,10 +98,7 @@ public class MainToolWindow implements ToolWindowFactory {
 		devicesComboBox.setMaximumRowCount(10);
 		// TODO: implement devices auto update
 		// TODO: add applying editors change when start button is pressed
-		// TODO: save last adb path
 		// TODO: try to fix permission trouble when starting activities
-		// TODO: save custom adb path
-		// TODO: try to find adb not only from android_home but also from gradle/android plugin (if possible) and project's local.properties
 		locateAdbButton.addActionListener(e -> pickAdbLocation());
 		String adbLocation = AdbHelper.getAdbLocation();
 		if (adbLocation == null) {
@@ -385,6 +382,9 @@ public class MainToolWindow implements ToolWindowFactory {
 	 * Prepares intent parameters and sends command in worker thread
 	 */
 	private void sendCommand(AdbHelper.CommandType type) {
+		if (extrasTable.getCellEditor() != null) {
+			extrasTable.getCellEditor().stopCellEditing();
+		}
 		// Check if device is selected
 		Object device = devicesComboBox.getSelectedItem();
 		if (device == null || !(device instanceof IDevice)) {
