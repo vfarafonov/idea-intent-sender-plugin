@@ -169,6 +169,8 @@ public class MainToolWindow implements ToolWindowFactory {
 			for (IntentFlags flag : command.getFlags()) {
 				flagsList_.setSelectedValue(flag, false);
 			}
+		} else {
+			flagsList_.setSelectedIndex(0);
 		}
 		updateFlagsTextField();
 		tableModel_.removeAllRows();
