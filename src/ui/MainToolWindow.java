@@ -29,10 +29,12 @@ import org.jetbrains.android.facet.AndroidRootUtil;
 import org.jetbrains.android.util.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -93,6 +95,7 @@ public class MainToolWindow implements ToolWindowFactory {
 	private JButton historyButton;
 	private JTextField userTextField;
 	private JCheckBox addUserCheckBox;
+	private JButton sendFeedbackButton;
 	private ToolWindow mainToolWindow;
 	private IDevice[] devices_ = {};
 	private final AndroidDebugBridge.IDeviceChangeListener devicesListener_ = new AndroidDebugBridge.IDeviceChangeListener() {
@@ -213,6 +216,21 @@ public class MainToolWindow implements ToolWindowFactory {
 			}
 		}));
 
+		sendFeedbackButton.setBorderPainted(false);
+		sendFeedbackButton.setOpaque(false);
+		sendFeedbackButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+				if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+					try {
+						desktop.browse(new URI("https://docs.google.com/spreadsheets/d/1scAa0cN6ob49YiASj42yaKAsm9ggefN0RwweJprOEEg/edit#gid=0"));
+					} catch (Exception exc) {
+						exc.printStackTrace();
+					}
+				}
+			}
+		});
 		updateFlagsTextField();
 	}
 
@@ -236,7 +254,7 @@ public class MainToolWindow implements ToolWindowFactory {
 	 * Fills up vies from given command
 	 */
 	private void updateUiFromCommand(Command command) {
-		if (command == null){
+		if (command == null) {
 			return;
 		}
 		actionTextField.setText(command.getAction());
