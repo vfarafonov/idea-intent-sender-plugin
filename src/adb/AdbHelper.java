@@ -208,23 +208,23 @@ public class AdbHelper {
 				break;
 		}
 		if (action != null && action.length() > 0) {
-			builder.append(" -a " + action);
+			builder.append(" -a '" + action + "'");
 		}
 		if (data != null && data.length() > 0) {
-			builder.append(" -d " + data);
+			builder.append(" -d '" + data + "'");
 		}
 		if (category != null && category.length() > 0) {
-			builder.append(" -c " + category);
+			builder.append(" -c '" + category + "'");
 		}
 		if (mime != null && mime.length() > 0) {
-			builder.append(" -t " + mime);
+			builder.append(" -t '" + mime + "'");
 		}
 		if (component != null && component.length() > 0) {
-			builder.append(" -n " + component);
+			builder.append(" -n '" + component + "'");
 		}
 		if (extras != null && extras.size() > 0) {
 			for (ExtraField extra : extras) {
-				builder.append(extra.getType().getPrefix() + extra.getKey() + " " + extra.getValue());
+				builder.append(extra.getType().getPrefix() + "'" + extra.getKey() + "' '" + extra.getValue() + "'");
 			}
 		}
 		if (flags != null && flags.size() > 0) {
