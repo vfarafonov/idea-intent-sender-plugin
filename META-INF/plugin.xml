@@ -2,17 +2,17 @@
 	<id>com.weezlabs.intentSender</id>
 	<name>Android Intent Sender</name>
 	<version>1.0</version>
-	<vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+	<vendor email="vfarafonov@weezlabs.com" url="https://weezlabs.com">Weezlabs</vendor>
 
 	<description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+     Plugin allows you to send intents with specified data and extras to android devices or emulators with adb command "broadcast", "startactivity", "startservice".<br>
+      Full readme: <a href="https://github.com/vfarafonov/IntentSender/tree/basic_features_implementation">here</a>
     ]]></description>
 
-	<change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
-    ]]>
+	<change-notes><!--<![CDATA[
+      &lt;!&ndash;Add change notes here.<br>
+      <em>most HTML tags may be used</em>&ndash;&gt;
+    ]]>-->
 	</change-notes>
 
 	<!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
