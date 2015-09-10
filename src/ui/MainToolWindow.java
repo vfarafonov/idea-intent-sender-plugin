@@ -236,6 +236,9 @@ public class MainToolWindow implements ToolWindowFactory {
 	 * Fills up vies from given command
 	 */
 	private void updateUiFromCommand(Command command) {
+		if (command == null){
+			return;
+		}
 		actionTextField.setText(command.getAction());
 		dataTextField.setText(command.getData());
 		categoryTextField.setText(command.getCategory());
