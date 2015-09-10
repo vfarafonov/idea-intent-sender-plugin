@@ -11,6 +11,7 @@ import com.intellij.ide.util.PropertiesComponent;
 import org.jetbrains.android.sdk.AndroidSdkUtils;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
@@ -89,7 +90,12 @@ public class AdbHelper {
 		File adbDir = new File(adbPath).getParentFile();
 		return adbDir.exists() &&
 				adbDir.isDirectory() &&
-				adbDir.list((dir, name) -> name.indexOf("adb") == 0).length > 0;
+				adbDir.list(new FilenameFilter() {
+					@Override
+					public boolean accept(File dir, String name) {
+						return name.indexOf("adb") == 0;
+					}
+				}).length > 0;
 	}
 
 	/**

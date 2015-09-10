@@ -29,6 +29,8 @@ import org.jetbrains.android.facet.AndroidRootUtil;
 import org.jetbrains.android.util.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -66,6 +68,7 @@ public class MainToolWindow implements ToolWindowFactory {
 	private static final int FADEOUT_TIME = 2000;
 	private static final String COMMAND_SUCCESS = "Command was successfully sent";
 	private final ExtrasTableModel tableModel_;
+	private final JBList flagsList_ = new JBList(Arrays.asList(IntentFlags.values()));
 	private JPanel toolWindowContent;
 	private JTable extrasTable;
 	private JButton addExtraButton;
@@ -91,26 +94,39 @@ public class MainToolWindow implements ToolWindowFactory {
 	private JTextField userTextField;
 	private JCheckBox addUserCheckBox;
 	private ToolWindow mainToolWindow;
-
 	private IDevice[] devices_ = {};
-	private final JBList flagsList_ = new JBList(Arrays.asList(IntentFlags.values()));
-	private Project project_;
 	private final AndroidDebugBridge.IDeviceChangeListener devicesListener_ = new AndroidDebugBridge.IDeviceChangeListener() {
 		@Override
 		public void deviceConnected(IDevice iDevice) {
-			SwingUtilities.invokeLater(MainToolWindow.this::updateConnectedDevices);
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					updateConnectedDevices();
+				}
+			});
 		}
 
 		@Override
 		public void deviceDisconnected(IDevice iDevice) {
-			SwingUtilities.invokeLater(MainToolWindow.this::updateConnectedDevices);
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					updateConnectedDevices();
+				}
+			});
 		}
 
 		@Override
 		public void deviceChanged(IDevice iDevice, int i) {
-			SwingUtilities.invokeLater(MainToolWindow.this::updateConnectedDevices);
+			SwingUtilities.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					updateConnectedDevices();
+				}
+			});
 		}
 	};
+	private Project project_;
 
 	@SuppressWarnings("unchecked")
 	public MainToolWindow() {
@@ -118,7 +134,12 @@ public class MainToolWindow implements ToolWindowFactory {
 		// Initialize ComboBox
 		devicesComboBox.setRenderer(new DevicesListRenderer());
 		devicesComboBox.setMaximumRowCount(10);
-		locateAdbButton.addActionListener(e -> pickAdbLocation());
+		locateAdbButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pickAdbLocation();
+			}
+		});
 		String adbLocation = AdbHelper.getAdbLocation();
 		if (adbLocation == null) {
 			toggleLocateAdbVisibility(true);
@@ -126,17 +147,55 @@ public class MainToolWindow implements ToolWindowFactory {
 			hideUi();
 			startAdbAndSwitchUI(adbLocation);
 		}
-		updateDevices.addActionListener(e -> updateConnectedDevices());
-		sendIntentButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.BROADCAST));
-		startActivityButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START_ACTIVITY));
-		startServiceButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START_SERVICE));
-		pickClassButton.addActionListener(e -> showClassPicker());
-		editFlags.addActionListener(e -> showFlagsDialog());
-		addExtraButton.addActionListener(e -> {
-			addExtraLine();
-			updateTableVisibility();
+		updateDevices.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				updateConnectedDevices();
+			}
 		});
-		historyButton.addActionListener(e -> showHistoryDialog());
+		sendIntentButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				sendCommand(AdbHelper.CommandType.BROADCAST);
+			}
+		});
+		startActivityButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				sendCommand(AdbHelper.CommandType.START_ACTIVITY);
+			}
+		});
+		startServiceButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				sendCommand(AdbHelper.CommandType.START_SERVICE);
+			}
+		});
+		pickClassButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showClassPicker();
+			}
+		});
+		editFlags.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showFlagsDialog();
+			}
+		});
+		addExtraButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				addExtraLine();
+				updateTableVisibility();
+			}
+		});
+		historyButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showHistoryDialog();
+			}
+		});
 
 		// Set up extras table
 		tableModel_ = new ExtrasTableModel();
@@ -146,9 +205,12 @@ public class MainToolWindow implements ToolWindowFactory {
 		extrasTable.setRowHeight((int) (extrasTable.getRowHeight() * 1.3));
 		TableColumn removeColumn = extrasTable.getColumnModel().getColumn(ExtrasTableModel.COLUMNS_COUNT - 1);
 		removeColumn.setCellRenderer(new ExtrasDeleteButtonRenderer());
-		removeColumn.setCellEditor(new ExtrasDeleteButtonEditor(rowIndex -> {
-			tableModel_.removeRow(rowIndex);
-			updateTableVisibility();
+		removeColumn.setCellEditor(new ExtrasDeleteButtonEditor(new ExtrasDeleteButtonEditor.RemoveRowListener() {
+			@Override
+			public void onRowRemoved(int rowIndex) {
+				tableModel_.removeRow(rowIndex);
+				updateTableVisibility();
+			}
 		}));
 
 		updateFlagsTextField();
@@ -192,7 +254,9 @@ public class MainToolWindow implements ToolWindowFactory {
 		tableModel_.removeAllRows();
 		List<ExtraField> extras = command.getExtras();
 		if (extras != null && extras.size() > 0) {
-			extras.forEach(tableModel_::addRow);
+			for (ExtraField extra : extras) {
+				tableModel_.addRow(extra);
+			}
 		}
 		updateTableVisibility();
 	}
@@ -318,7 +382,7 @@ public class MainToolWindow implements ToolWindowFactory {
 	 * Checks if adb is connected and switches UI accordingly
 	 */
 	private void startAdbAndSwitchUI(String adbPath) {
-		AdbHelper adbHelper = AdbHelper.getInstance();
+		final AdbHelper adbHelper = AdbHelper.getInstance();
 		if (adbHelper.initAdb(adbPath, devicesListener_)) {
 			if (!adbHelper.isConnected()) {
 				locateAdbButton.setVisible(false);
@@ -402,7 +466,7 @@ public class MainToolWindow implements ToolWindowFactory {
 			extrasTable.getCellEditor().stopCellEditing();
 		}
 		// Check if device is selected
-		Object device = devicesComboBox.getSelectedItem();
+		final Object device = devicesComboBox.getSelectedItem();
 		if (device == null || !(device instanceof IDevice)) {
 			return;
 		}
@@ -423,7 +487,7 @@ public class MainToolWindow implements ToolWindowFactory {
 		List<ExtraField> extras = tableModel_.getValues();
 		List<IntentFlags> flags = flagsList_.getSelectedValuesList();
 		flags.remove(IntentFlags.NONE);
-		Command command = new Command(action, data, category, mime, component, user, extras, flags, type);
+		final Command command = new Command(action, data, category, mime, component, user, extras, flags, type);
 
 		toggleStartButtonsAvailability(false);
 		new SwingWorker<String, String>() {

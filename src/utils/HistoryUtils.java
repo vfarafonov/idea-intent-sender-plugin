@@ -43,13 +43,14 @@ public class HistoryUtils {
 	/**
 	 * Picks commands from history
 	 */
+	@SuppressWarnings("unchecked")
 	public static List<Command> getCommandsFromHistory() {
 		PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
 		String historyJson = propertiesComponent.getValue(HISTORY_JSON);
 		List<Command> commandList = new ArrayList<>();
 		Gson gson = new Gson();
 		if (historyJson != null) {
-			commandList.addAll(gson.fromJson(historyJson, new TypeToken<List<Command>>() {
+			commandList.addAll((List<Command>) gson.fromJson(historyJson, new TypeToken<List<Command>>() {
 			}.getType()));
 		}
 		return commandList;
