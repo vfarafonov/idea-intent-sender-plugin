@@ -17,7 +17,7 @@ class ExtrasTableModel extends AbstractTableModel {
 	private final List<ExtraField> values;
 
 	public ExtrasTableModel() {
-		values = new ArrayList<>();
+		values = new ArrayList<ExtraField>();
 	}
 
 	@Override

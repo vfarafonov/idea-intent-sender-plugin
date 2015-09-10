@@ -496,7 +496,13 @@ public class MainToolWindow implements ToolWindowFactory {
 				String error = null;
 				try {
 					error = AdbHelper.getInstance().sendCommand(command, (IDevice) device);
-				} catch (TimeoutException | AdbCommandRejectedException | IllegalArgumentException | IOException | ShellCommandUnresponsiveException e) {
+				} catch (TimeoutException e) {
+					e.printStackTrace();
+				} catch (AdbCommandRejectedException e) {
+					e.printStackTrace();
+				} catch (ShellCommandUnresponsiveException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 				return error;
@@ -507,7 +513,9 @@ public class MainToolWindow implements ToolWindowFactory {
 				String error;
 				try {
 					error = get();
-				} catch (InterruptedException | ExecutionException e) {
+				} catch (ExecutionException e) {
+					error = e.getMessage() != null ? e.getMessage() : UNKNOWN_ERROR;
+				} catch (InterruptedException e) {
 					error = e.getMessage() != null ? e.getMessage() : UNKNOWN_ERROR;
 				}
 				handleSendingResult(error, command);
@@ -561,10 +569,10 @@ public class MainToolWindow implements ToolWindowFactory {
 		devices_ = helper.getDevices();
 		if (devices_.length == 0) {
 			String[] emptyList = {"Devices not found"};
-			devicesComboBox.setModel(new DefaultComboBoxModel<>(emptyList));
+			devicesComboBox.setModel(new DefaultComboBoxModel<String>(emptyList));
 			toggleStartButtonsAvailability(false);
 		} else {
-			devicesComboBox.setModel(new DefaultComboBoxModel<>(devices_));
+			devicesComboBox.setModel(new DefaultComboBoxModel<IDevice>(devices_));
 			devicesComboBox.setSelectedIndex(findSelectionIndex(selectedSerial));
 			toggleStartButtonsAvailability(true);
 		}

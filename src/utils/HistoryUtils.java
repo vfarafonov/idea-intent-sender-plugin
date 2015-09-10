@@ -33,7 +33,7 @@ public class HistoryUtils {
 				commandList.remove(commandList.size() - 1);
 			}
 		} else {
-			commandList = new ArrayList<>();
+			commandList = new ArrayList<Command>();
 		}
 		commandList.add(0, command);
 		historyJson = gson.toJson(commandList);
@@ -47,7 +47,7 @@ public class HistoryUtils {
 	public static List<Command> getCommandsFromHistory() {
 		PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
 		String historyJson = propertiesComponent.getValue(HISTORY_JSON);
-		List<Command> commandList = new ArrayList<>();
+		List<Command> commandList = new ArrayList<Command>();
 		Gson gson = new Gson();
 		if (historyJson != null) {
 			commandList.addAll((List<Command>) gson.fromJson(historyJson, new TypeToken<List<Command>>() {
