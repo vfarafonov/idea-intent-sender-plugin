@@ -62,9 +62,9 @@ import utils.HistoryUtils;
  * Created by vfarafonov on 25.08.2015.
  */
 public class MainToolWindow implements ToolWindowFactory {
-	public static final String UNKNOWN_ERROR = "Unknown error";
-	public static final int FADEOUT_TIME = 2000;
-	public static final String COMMAND_SUCCESS = "Command was successfully sent";
+	private static final String UNKNOWN_ERROR = "Unknown error";
+	private static final int FADEOUT_TIME = 2000;
+	private static final String COMMAND_SUCCESS = "Command was successfully sent";
 	private final ExtrasTableModel tableModel_;
 	private JPanel toolWindowContent;
 	private JTable extrasTable;
@@ -79,7 +79,7 @@ public class MainToolWindow implements ToolWindowFactory {
 	private JTextField componentTextField;
 	private JTextField flagsTextField;
 	private JButton startActivityButton;
-	private JScrollPane extasRootLayout;
+	private JScrollPane extrasRootLayout;
 	private JButton locateAdbButton;
 	private JPanel sendButtonsPanel;
 	private JScrollPane parametersScrollPane;
@@ -93,25 +93,26 @@ public class MainToolWindow implements ToolWindowFactory {
 	private ToolWindow mainToolWindow;
 
 	private IDevice[] devices_ = {};
-	private JBList flagsList_ = new JBList(Arrays.asList(IntentFlags.values()));
+	private final JBList flagsList_ = new JBList(Arrays.asList(IntentFlags.values()));
 	private Project project_;
-	private AndroidDebugBridge.IDeviceChangeListener devicesListener_ = new AndroidDebugBridge.IDeviceChangeListener() {
+	private final AndroidDebugBridge.IDeviceChangeListener devicesListener_ = new AndroidDebugBridge.IDeviceChangeListener() {
 		@Override
 		public void deviceConnected(IDevice iDevice) {
-			SwingUtilities.invokeLater(() -> updateConnectedDevices());
+			SwingUtilities.invokeLater(MainToolWindow.this::updateConnectedDevices);
 		}
 
 		@Override
 		public void deviceDisconnected(IDevice iDevice) {
-			SwingUtilities.invokeLater(() -> updateConnectedDevices());
+			SwingUtilities.invokeLater(MainToolWindow.this::updateConnectedDevices);
 		}
 
 		@Override
 		public void deviceChanged(IDevice iDevice, int i) {
-			SwingUtilities.invokeLater(() -> updateConnectedDevices());
+			SwingUtilities.invokeLater(MainToolWindow.this::updateConnectedDevices);
 		}
 	};
 
+	@SuppressWarnings("unchecked")
 	public MainToolWindow() {
 		flagsList_.setSelectedIndex(0);
 		// Initialize ComboBox
@@ -191,9 +192,7 @@ public class MainToolWindow implements ToolWindowFactory {
 		tableModel_.removeAllRows();
 		List<ExtraField> extras = command.getExtras();
 		if (extras != null && extras.size() > 0) {
-			for (ExtraField extra : extras) {
-				tableModel_.addRow(extra);
-			}
+			extras.forEach(tableModel_::addRow);
 		}
 		updateTableVisibility();
 	}
@@ -284,7 +283,7 @@ public class MainToolWindow implements ToolWindowFactory {
 	}
 
 	/**
-	 * Displays filepicker and checks if picked file is adb executable
+	 * Displays file picker and checks if picked file is adb executable
 	 */
 	private void pickAdbLocation() {
 		JFileChooser adbFileChooser = new JFileChooser();
@@ -299,10 +298,7 @@ public class MainToolWindow implements ToolWindowFactory {
 				if (lastDotIndex != -1) {
 					nameWithoutExtension = nameWithoutExtension.substring(0, lastDotIndex);
 				}
-				if (nameWithoutExtension.equalsIgnoreCase("adb")) {
-					return true;
-				}
-				return false;
+				return nameWithoutExtension.equalsIgnoreCase("adb");
 			}
 
 			@Override
@@ -365,7 +361,7 @@ public class MainToolWindow implements ToolWindowFactory {
 		locateAdbButton.getParent().repaint();
 	}
 
-	public void hideUi() {
+	private void hideUi() {
 		devicesComboBox.setVisible(false);
 		updateDevices.setVisible(false);
 		parametersScrollPane.setVisible(false);
@@ -379,16 +375,16 @@ public class MainToolWindow implements ToolWindowFactory {
 	 */
 	private void updateTableVisibility() {
 		if (extrasTable.getRowCount() > 0) {
-			if (!extasRootLayout.isVisible()) {
-				extasRootLayout.setVisible(true);
-				extasRootLayout.getParent().revalidate();
-				extasRootLayout.getParent().repaint();
+			if (!extrasRootLayout.isVisible()) {
+				extrasRootLayout.setVisible(true);
+				extrasRootLayout.getParent().revalidate();
+				extrasRootLayout.getParent().repaint();
 			}
 		} else {
-			if (extasRootLayout.isVisible()) {
-				extasRootLayout.setVisible(false);
-				extasRootLayout.getParent().revalidate();
-				extasRootLayout.getParent().repaint();
+			if (extrasRootLayout.isVisible()) {
+				extrasRootLayout.setVisible(false);
+				extrasRootLayout.getParent().revalidate();
+				extrasRootLayout.getParent().repaint();
 			}
 		}
 	}
@@ -400,6 +396,7 @@ public class MainToolWindow implements ToolWindowFactory {
 	/**
 	 * Prepares intent parameters and sends command in worker thread
 	 */
+	@SuppressWarnings("unchecked")
 	private void sendCommand(AdbHelper.CommandType type) {
 		if (extrasTable.getCellEditor() != null) {
 			extrasTable.getCellEditor().stopCellEditing();
@@ -435,15 +432,7 @@ public class MainToolWindow implements ToolWindowFactory {
 				String error = null;
 				try {
 					error = AdbHelper.getInstance().sendCommand(command, (IDevice) device);
-				} catch (TimeoutException e) {
-					e.printStackTrace();
-				} catch (AdbCommandRejectedException e) {
-					e.printStackTrace();
-				} catch (ShellCommandUnresponsiveException e) {
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
+				} catch (TimeoutException | AdbCommandRejectedException | IllegalArgumentException | IOException | ShellCommandUnresponsiveException e) {
 					e.printStackTrace();
 				}
 				return error;
@@ -454,9 +443,7 @@ public class MainToolWindow implements ToolWindowFactory {
 				String error;
 				try {
 					error = get();
-				} catch (InterruptedException e) {
-					error = e.getMessage() != null ? e.getMessage() : UNKNOWN_ERROR;
-				} catch (ExecutionException e) {
+				} catch (InterruptedException | ExecutionException e) {
 					error = e.getMessage() != null ? e.getMessage() : UNKNOWN_ERROR;
 				}
 				handleSendingResult(error, command);
@@ -499,6 +486,7 @@ public class MainToolWindow implements ToolWindowFactory {
 	/**
 	 * Updates devices list keeping selected device if it is still connected
 	 */
+	@SuppressWarnings("unchecked")
 	private void updateConnectedDevices() {
 		AdbHelper helper = AdbHelper.getInstance();
 		String selectedSerial = null;
@@ -509,10 +497,10 @@ public class MainToolWindow implements ToolWindowFactory {
 		devices_ = helper.getDevices();
 		if (devices_.length == 0) {
 			String[] emptyList = {"Devices not found"};
-			devicesComboBox.setModel(new DefaultComboBoxModel<String>(emptyList));
+			devicesComboBox.setModel(new DefaultComboBoxModel<>(emptyList));
 			toggleStartButtonsAvailability(false);
 		} else {
-			devicesComboBox.setModel(new DefaultComboBoxModel<IDevice>(devices_));
+			devicesComboBox.setModel(new DefaultComboBoxModel<>(devices_));
 			devicesComboBox.setSelectedIndex(findSelectionIndex(selectedSerial));
 			toggleStartButtonsAvailability(true);
 		}

@@ -195,7 +195,7 @@
                       <text value="Flags"/>
                     </properties>
                   </component>
-                  <scrollpane id="e7c4d" binding="extasRootLayout">
+                  <scrollpane id="e7c4d" binding="extrasRootLayout">
                     <constraints>
                       <grid row="8" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="7" anchor="1" fill="1" indent="1" use-parent-layout="false"/>
                     </constraints>

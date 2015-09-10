@@ -10,7 +10,7 @@ import Models.Command;
 /**
  * Created by vfarafonov on 08.09.2015.
  */
-public class HistoryListCellRenderer extends DefaultListCellRenderer {
+class HistoryListCellRenderer extends DefaultListCellRenderer {
 	private static final int MAX_SUBJECT_LENGTH = 30;
 
 	@Override

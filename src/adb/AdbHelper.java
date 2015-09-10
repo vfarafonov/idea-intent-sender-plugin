@@ -24,7 +24,7 @@ import Models.IntentFlags;
  * Created by vfarafonov on 26.08.2015.
  */
 public class AdbHelper {
-	public static final String ADB_PATH_RELATIVE_TO_SDK_ROOT = "/platform-tools/adb";
+	private static final String ADB_PATH_RELATIVE_TO_SDK_ROOT = "/platform-tools/adb";
 	private static final String COMMAND_SEND_BROADCAST_BASE = "am broadcast";
 	private static final String COMMAND_START_ACTIVITY_BASE = "am start";
 	private static final String COMMAND_START_SERVICE_BASE = "am startservice";
@@ -34,7 +34,7 @@ public class AdbHelper {
 	private AndroidDebugBridge adb_;
 	private String errorString_ = null;
 
-	public AdbHelper() {
+	private AdbHelper() {
 		AndroidDebugBridge.init(false);
 	}
 
@@ -105,32 +105,13 @@ public class AdbHelper {
 			try {
 				adb_ = AndroidDebugBridge.createBridge(adbLocation, true);
 				if (adb_ != null) {
-					adb_.addDeviceChangeListener(listener);
+					AndroidDebugBridge.addDeviceChangeListener(listener);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		return adb_ != null;
-	}
-
-	/**
-	 * Waiting for connection to adb being established
-	 */
-	private void waitForDevices() {
-		int count = 0;
-		while (!adb_.hasInitialDeviceList()) {
-			try {
-				Thread.sleep(100);
-				count++;
-			} catch (final InterruptedException e) {
-				// pass
-			}
-			// let's not wait more than 10 sec.
-			if (count > 100) {
-				return;
-			}
-		}
 	}
 
 	public IDevice[] getDevices() {
@@ -142,9 +123,9 @@ public class AdbHelper {
 	 *
 	 * @return Error message if something went wrong, null if it is no errors
 	 */
-	public String sendCommand(CommandType type, IDevice device, String action, String data,
-							  String category, String mime, String component, String user,
-							  List<ExtraField> extras, List<IntentFlags> flags)
+	private String sendCommand(CommandType type, IDevice device, String action, String data,
+							   String category, String mime, String component, String user,
+							   List<ExtraField> extras, List<IntentFlags> flags)
 			throws TimeoutException, AdbCommandRejectedException, ShellCommandUnresponsiveException,
 			IOException, IllegalArgumentException {
 		if (device == null) {
@@ -163,8 +144,8 @@ public class AdbHelper {
 						int lineEndingIndex = output.indexOf("\n");
 						errorString_ = lineEndingIndex > -1 ? output.substring(0, lineEndingIndex) : output;
 					} else if (index > 0) {
-						Character beforeSymb = output.charAt(index - 1);
-						if (beforeSymb == '\n') {
+						Character beforeSymbol = output.charAt(index - 1);
+						if (beforeSymbol == '\n') {
 							errorString_ = output.substring(index);
 							int lineEndingIndex = errorString_.indexOf("\n");
 							if (lineEndingIndex > -1) {
@@ -208,23 +189,23 @@ public class AdbHelper {
 				break;
 		}
 		if (action != null && action.length() > 0) {
-			builder.append(" -a '" + action + "'");
+			builder.append(" -a '").append(action).append("'");
 		}
 		if (data != null && data.length() > 0) {
-			builder.append(" -d '" + data + "'");
+			builder.append(" -d '").append(data).append("'");
 		}
 		if (category != null && category.length() > 0) {
-			builder.append(" -c '" + category + "'");
+			builder.append(" -c '").append(category).append("'");
 		}
 		if (mime != null && mime.length() > 0) {
-			builder.append(" -t '" + mime + "'");
+			builder.append(" -t '").append(mime).append("'");
 		}
 		if (component != null && component.length() > 0) {
-			builder.append(" -n '" + component + "'");
+			builder.append(" -n '").append(component).append("'");
 		}
 		if (extras != null && extras.size() > 0) {
 			for (ExtraField extra : extras) {
-				builder.append(extra.getType().getPrefix() + "'" + extra.getKey() + "' '" + extra.getValue() + "'");
+				builder.append(extra.getType().getPrefix()).append("'").append(extra.getKey()).append("' '").append(extra.getValue()).append("'");
 			}
 		}
 		if (flags != null && flags.size() > 0) {

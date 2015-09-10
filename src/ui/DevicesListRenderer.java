@@ -1,19 +1,16 @@
 package ui;
 
 import com.android.ddmlib.IDevice;
-
-import java.awt.Component;
+import com.intellij.ui.ListCellRendererWrapper;
 
 import javax.swing.JList;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 /**
  * Created by vfarafonov on 26.08.2015.
  */
-public class DevicesListRenderer extends BasicComboBoxRenderer {
+class DevicesListRenderer extends ListCellRendererWrapper {
 	@Override
-	public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-		super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+	public void customize(JList list, Object value, int index, boolean selected, boolean hasFocus) {
 		if (value instanceof IDevice) {
 			IDevice device = (IDevice) value;
 			String deviceName;
@@ -24,6 +21,5 @@ public class DevicesListRenderer extends BasicComboBoxRenderer {
 			}
 			setText(deviceName + ": " + device.getSerialNumber());
 		}
-		return this;
 	}
 }

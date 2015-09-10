@@ -10,12 +10,12 @@ import javax.swing.JTable;
 /**
  * Created by vfarafonov on 31.08.2015.
  */
-public class ExtrasDeleteButtonEditor extends DefaultCellEditor {
+class ExtrasDeleteButtonEditor extends DefaultCellEditor {
 
 
 	private final JButton button_;
 	private int currentRow_;
-	private RemoveRowListener listener_;
+	private final RemoveRowListener listener_;
 
 	public ExtrasDeleteButtonEditor(RemoveRowListener listener) {
 		super(new JCheckBox());
@@ -41,10 +41,6 @@ public class ExtrasDeleteButtonEditor extends DefaultCellEditor {
 			button_.setBackground(table.getBackground());
 		}
 		return button_;
-	}
-
-	public void setListener(RemoveRowListener listener_) {
-		this.listener_ = listener_;
 	}
 
 	public interface RemoveRowListener {

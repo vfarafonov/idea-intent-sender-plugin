@@ -10,11 +10,11 @@ import Models.ExtraField;
 /**
  * Created by vfarafonov on 31.08.2015.
  */
-public class ExtrasTableModel extends AbstractTableModel {
+class ExtrasTableModel extends AbstractTableModel {
 	public final static int COLUMNS_COUNT = 4;
 	private final static String[] COLUMN_NAMES = new String[] {"Type", "Key", "Value", ""};
 
-	private List<ExtraField> values;
+	private final List<ExtraField> values;
 
 	public ExtrasTableModel() {
 		values = new ArrayList<>();

@@ -4,7 +4,7 @@ package Models;
  * Created by vfarafonov on 31.08.2015.
  */
 public class ExtraField {
-	public static enum ExtrasTypes{
+	public enum ExtrasTypes{
 		STRING(" -e "), INT(" --ei "), BOOLEAN(" --ez "), NULL_EXTRA(" --esn "), LONG(" --el "),
 		FLOAT(" --ef "), URI(" --eu "), INT_ARRAY(" --eia "), LONG_ARRAY(" --ela "), FLOAT_ARRAY(" --efa ");
 
