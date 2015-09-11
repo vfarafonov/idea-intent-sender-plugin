@@ -516,7 +516,7 @@ public class MainToolWindow implements ToolWindowFactory {
 		List<ExtraField> extras = tableModel_.getValues();
 		List<IntentFlags> flags = new ArrayList<IntentFlags>();
 		for (Object flag : flagsList_.getSelectedValues()) {
-			if (flag instanceof IntentFlags){
+			if (flag instanceof IntentFlags) {
 				flags.add((IntentFlags) flag);
 			}
 		}
@@ -578,7 +578,7 @@ public class MainToolWindow implements ToolWindowFactory {
 				.setShowCallout(false);
 		if (error == null) {
 			System.out.println("SUCCESS sending command");
-			builder.setFillColor(JBColor.BLUE);
+			builder.setFillColor(new JBColor(10930928, 10930928));
 			HistoryUtils.saveCommand(command);
 		} else {
 			System.out.println("Sending command FAILED: " + error);
