@@ -35,6 +35,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -262,6 +263,7 @@ public class MainToolWindow implements ToolWindowFactory {
 		categoryTextField.setText(command.getCategory());
 		mimeTextField.setText(command.getMimeType());
 		componentTextField.setText(command.getComponent());
+		userTextField.setText(command.getUser());
 		flagsList_.removeSelectionInterval(0, flagsList_.getItemsCount());
 		List<IntentFlags> flags = command.getFlags();
 		if (flags != null && flags.size() > 0) {
@@ -364,7 +366,7 @@ public class MainToolWindow implements ToolWindowFactory {
 	 * Updates flags text
 	 */
 	private void updateFlagsTextField() {
-		flagsTextField.setText(flagsList_.getSelectedValuesList().toString());
+		flagsTextField.setText(Arrays.toString(flagsList_.getSelectedValues()));
 	}
 
 	/**
@@ -408,7 +410,8 @@ public class MainToolWindow implements ToolWindowFactory {
 			if (!adbHelper.isConnected()) {
 				locateAdbButton.setVisible(false);
 				startingAdbLabel.setVisible(true);
-				startingAdbLabel.getParent().revalidate();
+				startingAdbLabel.getParent().invalidate();
+				startingAdbLabel.getParent().validate();
 				startingAdbLabel.getParent().repaint();
 				new SwingWorker<Void, Void>() {
 
@@ -421,7 +424,8 @@ public class MainToolWindow implements ToolWindowFactory {
 					@Override
 					protected void done() {
 						startingAdbLabel.setVisible(false);
-						startingAdbLabel.getParent().revalidate();
+						startingAdbLabel.getParent().invalidate();
+						startingAdbLabel.getParent().validate();
 						startingAdbLabel.getParent().repaint();
 						toggleLocateAdbVisibility(false);
 						updateConnectedDevices();
@@ -442,7 +446,8 @@ public class MainToolWindow implements ToolWindowFactory {
 		updateDevices.setVisible(!isLocateButtonVisible);
 		parametersScrollPane.setVisible(!isLocateButtonVisible);
 		sendButtonsPanel.setVisible(!isLocateButtonVisible);
-		locateAdbButton.getParent().revalidate();
+		locateAdbButton.getParent().invalidate();
+		locateAdbButton.getParent().validate();
 		locateAdbButton.getParent().repaint();
 	}
 
@@ -451,7 +456,8 @@ public class MainToolWindow implements ToolWindowFactory {
 		updateDevices.setVisible(false);
 		parametersScrollPane.setVisible(false);
 		sendButtonsPanel.setVisible(false);
-		locateAdbButton.getParent().revalidate();
+		locateAdbButton.getParent().invalidate();
+		locateAdbButton.getParent().validate();
 		locateAdbButton.getParent().repaint();
 	}
 
@@ -462,13 +468,15 @@ public class MainToolWindow implements ToolWindowFactory {
 		if (extrasTable.getRowCount() > 0) {
 			if (!extrasRootLayout.isVisible()) {
 				extrasRootLayout.setVisible(true);
-				extrasRootLayout.getParent().revalidate();
+				extrasRootLayout.getParent().invalidate();
+				extrasRootLayout.getParent().validate();
 				extrasRootLayout.getParent().repaint();
 			}
 		} else {
 			if (extrasRootLayout.isVisible()) {
 				extrasRootLayout.setVisible(false);
-				extrasRootLayout.getParent().revalidate();
+				extrasRootLayout.getParent().invalidate();
+				extrasRootLayout.getParent().validate();
 				extrasRootLayout.getParent().repaint();
 			}
 		}
@@ -506,7 +514,12 @@ public class MainToolWindow implements ToolWindowFactory {
 			}
 		}
 		List<ExtraField> extras = tableModel_.getValues();
-		List<IntentFlags> flags = flagsList_.getSelectedValuesList();
+		List<IntentFlags> flags = new ArrayList<IntentFlags>();
+		for (Object flag : flagsList_.getSelectedValues()) {
+			if (flag instanceof IntentFlags){
+				flags.add((IntentFlags) flag);
+			}
+		}
 		flags.remove(IntentFlags.NONE);
 		final Command command = new Command(action, data, category, mime, component, user, extras, flags, type);
 
