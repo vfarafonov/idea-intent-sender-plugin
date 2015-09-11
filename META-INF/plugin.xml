@@ -1,43 +1,52 @@
 <idea-plugin version="2">
-  <id>com.weezlabs.intentSender</id>
-  <name>Android Intent Sender</name>
-  <version>1.0</version>
-  <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+	<id>com.weezlabs.intentSender</id>
+	<name>Android Intent Sender</name>
+	<version>0.1.0</version>
+	<vendor email="vfarafonov@weezlabs.com" url="https://weezlabs.com">Weezlabs</vendor>
 
-  <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+	<description><![CDATA[
+     Plugin allows you to send intents with specified data and extras to android devices or emulators with adb command "broadcast", "startactivity", "startservice".<br>
+      Full readme: <a href="https://github.com/vfarafonov/IntentSender/tree/basic_features_implementation">here</a>
     ]]></description>
 
-  <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
-    ]]>
-  </change-notes>
+	<change-notes><!--<![CDATA[
+      &lt;!&ndash;Add change notes here.<br>
+      <em>most HTML tags may be used</em>&ndash;&gt;
+    ]]>-->
+	</change-notes>
 
-  <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="131"/>
+	<!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
+	<idea-version since-build="131"/>
 
-  <!-- please see https://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
-       on how to target different products -->
-  <!-- uncomment to enable plugin in all products
-  <depends>com.intellij.modules.lang</depends>
-  -->
+	<!-- please see https://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+		   on how to target different products -->
+	<!-- uncomment to enable plugin in all products
+	  <depends>com.intellij.modules.lang</depends>
+	  -->
 
-  <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
-  </extensions>
+	<extensions defaultExtensionNs="com.intellij">
+		<!-- Add your extensions here -->
+		<toolWindow
+			id="Intent Sender"
+			anchor="right"
+			factoryClass="ui.MainToolWindow"
+			secondary="true">
+		</toolWindow>
 
-  <application-components>
-    <!-- Add your application components here -->
-  </application-components>
+	</extensions>
 
-  <project-components>
-    <!-- Add your project components here -->
-  </project-components>
+	<application-components>
+		<!-- Add your application components here -->
+	</application-components>
 
-  <actions>
-    <!-- Add your actions here -->
-  </actions>
+	<project-components>
+		<!-- Add your project components here -->
+	</project-components>
+
+	<depends>org.jetbrains.android</depends>
+
+	<actions>
+		<!-- Add your actions here -->
+	</actions>
 
 </idea-plugin>
