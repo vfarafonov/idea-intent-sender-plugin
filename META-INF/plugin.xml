@@ -6,7 +6,7 @@
 
 	<description><![CDATA[
      Plugin allows you to send intents with specified data and extras to android devices or emulators with adb command "broadcast", "startactivity", "startservice".<br>
-      Full readme: <a href="https://github.com/vfarafonov/IntentSender/tree/basic_features_implementation">here</a>
+      Full readme: <a href="https://github.com/WeezLabs/idea-intent-sender-plugin">here</a>
     ]]></description>
 
 	<change-notes><!--<![CDATA[
