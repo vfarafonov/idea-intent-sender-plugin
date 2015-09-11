@@ -1,7 +1,7 @@
 <idea-plugin version="2">
 	<id>com.weezlabs.intentSender</id>
 	<name>Android Intent Sender</name>
-	<version>1.0</version>
+	<version>0.1.0</version>
 	<vendor email="vfarafonov@weezlabs.com" url="https://weezlabs.com">Weezlabs</vendor>
 
 	<description><![CDATA[
