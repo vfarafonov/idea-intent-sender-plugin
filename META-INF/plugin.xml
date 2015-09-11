@@ -1,12 +1,12 @@
-<idea-plugin version="2">
+<idea-plugin version="3">
 	<id>com.weezlabs.intentSender</id>
 	<name>Android Intent Sender</name>
-	<version>0.1.0</version>
+	<version>0.2.0</version>
 	<vendor email="vfarafonov@weezlabs.com" url="https://weezlabs.com">Weezlabs</vendor>
 
 	<description><![CDATA[
      Plugin allows you to send intents with specified data and extras to android devices or emulators with adb command "broadcast", "startactivity", "startservice".<br>
-      Full readme: <a href="https://github.com/vfarafonov/IntentSender/tree/basic_features_implementation">here</a>
+      Full readme: <a href="https://github.com/WeezLabs/idea-intent-sender-plugin">here</a>
     ]]></description>
 
 	<change-notes><!--<![CDATA[
