@@ -70,6 +70,7 @@ public class MainToolWindow implements ToolWindowFactory {
 	private static final String UNKNOWN_ERROR = "Unknown error";
 	private static final int FADEOUT_TIME = 2000;
 	private static final String COMMAND_SUCCESS = "Command was successfully sent";
+	public static final String ISSUES_LINK = "https://github.com/WeezLabs/idea-intent-sender-plugin/issues";
 	private final ExtrasTableModel tableModel_;
 	private final JBList flagsList_ = new JBList(Arrays.asList(IntentFlags.values()));
 	private JPanel toolWindowContent;
@@ -225,7 +226,7 @@ public class MainToolWindow implements ToolWindowFactory {
 				Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
 				if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
 					try {
-						desktop.browse(new URI("https://docs.google.com/spreadsheets/d/1scAa0cN6ob49YiASj42yaKAsm9ggefN0RwweJprOEEg/edit#gid=0"));
+						desktop.browse(new URI(ISSUES_LINK));
 					} catch (Exception exc) {
 						exc.printStackTrace();
 					}
