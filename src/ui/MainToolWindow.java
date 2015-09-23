@@ -19,6 +19,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBList;
+import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.xml.GenericAttributeValue;
@@ -30,6 +31,7 @@ import org.jetbrains.android.util.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.Desktop;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -50,6 +52,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -67,10 +70,11 @@ import utils.HistoryUtils;
  * Created by vfarafonov on 25.08.2015.
  */
 public class MainToolWindow implements ToolWindowFactory {
+	public static final String ISSUES_LINK = "https://github.com/WeezLabs/idea-intent-sender-plugin/issues";
+	public static final String EMPTY_OUTPUT = "No data to display";
 	private static final String UNKNOWN_ERROR = "Unknown error";
 	private static final int FADEOUT_TIME = 2000;
 	private static final String COMMAND_SUCCESS = "Command was successfully sent";
-	public static final String ISSUES_LINK = "https://github.com/WeezLabs/idea-intent-sender-plugin/issues";
 	private final ExtrasTableModel tableModel_;
 	private final JBList flagsList_ = new JBList(Arrays.asList(IntentFlags.values()));
 	private JPanel toolWindowContent;
@@ -98,6 +102,7 @@ public class MainToolWindow implements ToolWindowFactory {
 	private JTextField userTextField;
 	private JCheckBox addUserCheckBox;
 	private JButton sendFeedbackButton;
+	private JButton showTerminalOutpuButton;
 	private ToolWindow mainToolWindow;
 	private IDevice[] devices_ = {};
 	private final AndroidDebugBridge.IDeviceChangeListener devicesListener_ = new AndroidDebugBridge.IDeviceChangeListener() {
@@ -132,6 +137,7 @@ public class MainToolWindow implements ToolWindowFactory {
 		}
 	};
 	private Project project_;
+	private String lastOutput_ = EMPTY_OUTPUT;
 
 	@SuppressWarnings("unchecked")
 	public MainToolWindow() {
@@ -234,6 +240,17 @@ public class MainToolWindow implements ToolWindowFactory {
 			}
 		});
 		updateFlagsTextField();
+		showTerminalOutpuButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JTextArea textArea = new JTextArea(lastOutput_, 15, 0);
+				textArea.setEditable(false);
+				textArea.setLineWrap(true);
+				JBScrollPane scrollPane = new JBScrollPane(textArea);
+				scrollPane.setPreferredSize(new Dimension(toolWindowContent.getWidth(), (int) (toolWindowContent.getHeight() * 0.5f)));
+				JOptionPane.showMessageDialog(toolWindowContent, scrollPane, "Last command output", JOptionPane.PLAIN_MESSAGE);
+			}
+		});
 	}
 
 	/**
@@ -526,10 +543,18 @@ public class MainToolWindow implements ToolWindowFactory {
 
 		toggleStartButtonsAvailability(false);
 		new SwingWorker<String, String>() {
+
 			@Override
 			protected String doInBackground() throws Exception {
 				String error = null;
+				lastOutput_ = "";
 				try {
+					AdbHelper.getInstance().setOutputListener(new AdbHelper.TerminalOutputListener() {
+						@Override
+						public void addOutput(String output) {
+							lastOutput_ = lastOutput_ + output;
+						}
+					});
 					error = AdbHelper.getInstance().sendCommand(command, (IDevice) device);
 				} catch (TimeoutException e) {
 					e.printStackTrace();
@@ -539,6 +564,9 @@ public class MainToolWindow implements ToolWindowFactory {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
+				}
+				if (lastOutput_.equals("")) {
+					lastOutput_ = EMPTY_OUTPUT;
 				}
 				return error;
 			}

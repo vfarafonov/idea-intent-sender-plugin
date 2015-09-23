@@ -34,6 +34,7 @@ public class AdbHelper {
 	private static AdbHelper adbHelper_;
 	private AndroidDebugBridge adb_;
 	private String errorString_ = null;
+	private TerminalOutputListener outputListener_;
 
 	private AdbHelper() {
 		AndroidDebugBridge.init(false);
@@ -144,7 +145,10 @@ public class AdbHelper {
 			@Override
 			public void addOutput(byte[] bytes, int i, int i1) {
 				try {
-					String output = new String(bytes, "UTF-8");
+					String output = new String(bytes, i, i1, "UTF-8");
+					if (outputListener_ != null) {
+						outputListener_.addOutput(output);
+					}
 					int index = output.indexOf("Error:");
 					if (index == 0) {
 						int lineEndingIndex = output.indexOf("\n");
@@ -243,7 +247,15 @@ public class AdbHelper {
 		return sendCommand(command.getType(), device, command.getAction(), command.getData(), command.getCategory(), command.getMimeType(), command.getComponent(), command.getUser(), command.getExtras(), command.getFlags());
 	}
 
+	public void setOutputListener(TerminalOutputListener outputListener) {
+		this.outputListener_ = outputListener;
+	}
+
 	public enum CommandType {
 		BROADCAST, START_SERVICE, START_ACTIVITY
+	}
+
+	public interface TerminalOutputListener {
+		void addOutput(String output);
 	}
 }

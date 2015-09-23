@@ -77,6 +77,15 @@
                   <text value="Send feedback"/>
                 </properties>
               </component>
+              <component id="13ec7" class="javax.swing.JButton" binding="showTerminalOutpuButton">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font style="3"/>
+                  <text value="Terminal output"/>
+                </properties>
+              </component>
             </children>
           </grid>
           <scrollpane id="df17e" binding="parametersScrollPane">
