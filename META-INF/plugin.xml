@@ -1,7 +1,7 @@
-<idea-plugin version="3">
+<idea-plugin version="4">
 	<id>com.weezlabs.intentSender</id>
 	<name>Android Intent Sender</name>
-	<version>0.2.0</version>
+	<version>0.3.0</version>
 	<vendor email="vfarafonov@weezlabs.com" url="https://weezlabs.com">Weezlabs</vendor>
 
 	<description><![CDATA[
@@ -9,10 +9,14 @@
       Full readme: <a href="https://github.com/WeezLabs/idea-intent-sender-plugin">here</a>
     ]]></description>
 
-	<change-notes><!--<![CDATA[
-      &lt;!&ndash;Add change notes here.<br>
-      <em>most HTML tags may be used</em>&ndash;&gt;
-    ]]>-->
+	<change-notes><![CDATA[
+      <html>
+        <dl>
+            <dt>0.3.0</dt>
+            <dd>Added terminal output displaying<dd>
+        </dl>
+        </html>
+    ]]>
 	</change-notes>
 
 	<!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
