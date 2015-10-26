@@ -96,7 +96,7 @@ Intent filter for the GcmBroadcastReceiver:
                 <category android:name="com.your.package" />
 </intent-filter>
 ```
-To send a test GCM we need to set the Action as `“com.google.android.c2dm.intent.RECEIVE”`, add a String extra with the key `“message_type”` and the value `“gcm”`, add one more String extra `“message”` with the expected json as the value and click on the “Send Broadcast” button. The app will handle broadcast message we sent as it will handle a real GCM message.  
+To send a test GCM we need to set the Action as `“com.google.android.c2dm.intent.RECEIVE”` and Category as `“com.your.package”`, add a String extra with the key `“message_type”` and the value `“gcm”`, add one more String extra `“message”` with the expected json as the value and click on the “Send Broadcast” button. The app will handle broadcast message we sent as it will handle a real GCM message.  
 
 Limitations
 ========
