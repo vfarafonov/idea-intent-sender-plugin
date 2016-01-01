@@ -63,8 +63,10 @@ import javax.swing.table.TableColumn;
 import Models.Command;
 import Models.ExtraField;
 import Models.IntentFlags;
+import Models.StringSearchable;
 import adb.AdbHelper;
 import utils.HistoryUtils;
+import utils.IntentActionsHelper;
 
 /**
  * Created by vfarafonov on 25.08.2015.
@@ -80,7 +82,6 @@ public class MainToolWindow implements ToolWindowFactory {
 	private JPanel toolWindowContent;
 	private JTable extrasTable;
 	private JButton addExtraButton;
-	private JTextField actionTextField;
 	private JComboBox devicesComboBox;
 	private JButton updateDevices;
 	private JButton sendIntentButton;
@@ -103,6 +104,7 @@ public class MainToolWindow implements ToolWindowFactory {
 	private JCheckBox addUserCheckBox;
 	private JButton sendFeedbackButton;
 	private JButton showTerminalOutpuButton;
+	private AutoCompleteJComboBox actionsComboBox;
 	private ToolWindow mainToolWindow;
 	private IDevice[] devices_ = {};
 	private final AndroidDebugBridge.IDeviceChangeListener devicesListener_ = new AndroidDebugBridge.IDeviceChangeListener() {
@@ -276,7 +278,7 @@ public class MainToolWindow implements ToolWindowFactory {
 		if (command == null) {
 			return;
 		}
-		actionTextField.setText(command.getAction());
+		actionsComboBox.setText(command.getAction());
 		dataTextField.setText(command.getData());
 		categoryTextField.setText(command.getCategory());
 		mimeTextField.setText(command.getMimeType());
@@ -519,7 +521,7 @@ public class MainToolWindow implements ToolWindowFactory {
 		}
 
 		// Prepare and send intent
-		String action = actionTextField.getText();
+		String action = actionsComboBox.getText();
 		String data = dataTextField.getText();
 		String category = categoryTextField.getText();
 		String mime = mimeTextField.getText();
@@ -665,5 +667,10 @@ public class MainToolWindow implements ToolWindowFactory {
 		ContentFactory factory = ContentFactory.SERVICE.getInstance();
 		Content content = factory.createContent(toolWindowContent, "", false);
 		mainToolWindow.getContentManager().addContent(content);
+	}
+
+	private void createUIComponents() {
+		StringSearchable actionsSearchable = new StringSearchable(IntentActionsHelper.getActionsList());
+		actionsComboBox = new AutoCompleteJComboBox(actionsSearchable);
 	}
 }
