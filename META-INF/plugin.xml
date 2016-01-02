@@ -1,7 +1,7 @@
-<idea-plugin version="4">
+<idea-plugin version="5">
 	<id>com.weezlabs.intentSender</id>
 	<name>Android Intent Sender</name>
-	<version>0.3.0</version>
+	<version>0.4.0</version>
 	<vendor email="vfarafonov@weezlabs.com" url="https://weezlabs.com">Weezlabs</vendor>
 
 	<description><![CDATA[
@@ -11,6 +11,11 @@
 
 	<change-notes><![CDATA[
       <html>
+        <dl>
+            <dt>0.4.0</dt>
+            <dd>Implemented autocomplete feature for intent action field</br>
+            Added support of string arrays to extra fields<dd>
+        </dl>
         <dl>
             <dt>0.3.0</dt>
             <dd>Added terminal output displaying<dd>
