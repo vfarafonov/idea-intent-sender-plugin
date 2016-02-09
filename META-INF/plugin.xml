@@ -12,6 +12,10 @@
 	<change-notes><![CDATA[
       <html>
         <dl>
+            <dt>0.5.0</dt>
+            <dd>Minor fixes<dd>
+        </dl>
+        <dl>
             <dt>0.4.0</dt>
             <dd>Implemented autocomplete feature for intent action field</br>
             Added support of string arrays to extra fields<dd>
