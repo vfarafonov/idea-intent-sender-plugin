@@ -76,7 +76,6 @@ public class AutoCompleteJComboBox extends JComboBox {
 					if (textComponent.getText().length() > 0 && getItemCount() > 1) {
 						setPopupVisible(true);
 					}
-					textComponent.setCaretPosition(textComponent.getText().length());
 				}
 
 				@Override
