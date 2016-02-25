@@ -18,8 +18,11 @@ import diff.Searchable;
  * Created by vfarafonov on 01.01.2016.
  */
 public class AutoCompleteJComboBox extends JComboBox {
+	private static final int POSITION_NOT_DEFINED = -1;
+
 	private Searchable searchable_;
 	private String currentText_;
+	private int lastCaretPosition_ = POSITION_NOT_DEFINED;
 
 	public AutoCompleteJComboBox(Searchable searchable) {
 		super();
@@ -50,6 +53,7 @@ public class AutoCompleteJComboBox extends JComboBox {
 					SwingUtilities.invokeLater(new Runnable() {
 						@Override
 						public void run() {
+							lastCaretPosition_ = textComponent.getCaretPosition();
 							String query = textComponent.getText();
 							Set<String> founds = new CaseInsensitiveHashSet(searchable_.search(query));
 							setEditable(false);
@@ -76,11 +80,14 @@ public class AutoCompleteJComboBox extends JComboBox {
 					if (textComponent.getText().length() > 0 && getItemCount() > 1) {
 						setPopupVisible(true);
 					}
+					if (lastCaretPosition_ != POSITION_NOT_DEFINED) {
+						textComponent.setCaretPosition(lastCaretPosition_);
+						lastCaretPosition_ = POSITION_NOT_DEFINED;
+					}
 				}
 
 				@Override
 				public void focusLost(FocusEvent e) {
-
 				}
 			});
 		} else {
