@@ -343,14 +343,12 @@
                       </component>
                     </children>
                   </grid>
-                  <component id="78ce9" class="ui.AutoCompleteJComboBox" binding="actionsComboBox" custom-create="true">
+                  <component id="1e15d" class="ui.AutoCompleteComboBox" binding="actionsComboBox">
                     <constraints>
-                      <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false">
-                        <preferred-size width="297" height="24"/>
-                      </grid>
+                      <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="3" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
-                      <editable value="true"/>
+                      <maximumRowCount value="5"/>
                     </properties>
                   </component>
                 </children>

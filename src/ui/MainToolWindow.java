@@ -63,10 +63,8 @@ import javax.swing.table.TableColumn;
 import Models.Command;
 import Models.ExtraField;
 import Models.IntentFlags;
-import Models.StringSearchable;
 import adb.AdbHelper;
 import utils.HistoryUtils;
-import utils.IntentActionsHelper;
 
 /**
  * Created by vfarafonov on 25.08.2015.
@@ -104,7 +102,7 @@ public class MainToolWindow implements ToolWindowFactory {
 	private JCheckBox addUserCheckBox;
 	private JButton sendFeedbackButton;
 	private JButton showTerminalOutpuButton;
-	private AutoCompleteJComboBox actionsComboBox;
+	private AutoCompleteComboBox actionsComboBox;
 	private ToolWindow mainToolWindow;
 	private IDevice[] devices_ = {};
 	private final AndroidDebugBridge.IDeviceChangeListener devicesListener_ = new AndroidDebugBridge.IDeviceChangeListener() {
@@ -667,10 +665,5 @@ public class MainToolWindow implements ToolWindowFactory {
 		ContentFactory factory = ContentFactory.SERVICE.getInstance();
 		Content content = factory.createContent(toolWindowContent, "", false);
 		mainToolWindow.getContentManager().addContent(content);
-	}
-
-	private void createUIComponents() {
-		StringSearchable actionsSearchable = new StringSearchable(IntentActionsHelper.getActionsList());
-		actionsComboBox = new AutoCompleteJComboBox(actionsSearchable);
 	}
 }
