@@ -6,9 +6,8 @@ import com.android.ddmlib.IDevice;
 import com.android.ddmlib.IShellOutputReceiver;
 import com.android.ddmlib.ShellCommandUnresponsiveException;
 import com.android.ddmlib.TimeoutException;
+import com.android.tools.idea.sdk.AndroidSdks;
 import com.intellij.ide.util.PropertiesComponent;
-
-import org.jetbrains.android.sdk.AndroidSdkUtils;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -65,9 +64,9 @@ public class AdbHelper {
 				return adbPath;
 			}
 		}
-		Collection<String> sdkList = AndroidSdkUtils.getAndroidSdkPathsFromExistingPlatforms();
+		Collection<File> sdkList = AndroidSdks.getInstance().getAndroidSdkPathsFromExistingPlatforms();
 		if (sdkList.size() > 0) {
-			String sdkPath = sdkList.iterator().next() + ADB_PATH_RELATIVE_TO_SDK_ROOT;
+			String sdkPath = sdkList.iterator().next().getPath() + ADB_PATH_RELATIVE_TO_SDK_ROOT;
 			if (checkForAdbInPath(sdkPath)) {
 				saveAdbLocation(sdkPath);
 				return sdkPath;
