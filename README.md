@@ -1,4 +1,4 @@
-#IntentSender
+IntentSender
 =========
 Plugin allows you to send intents with specified data and extras to android devices or emulators with the ADB command "broadcast", "startactivity", "startservice".  
 Typical plugin use-cases:
@@ -103,6 +103,17 @@ Limitations
   + Starting not exported activities may not work on some devices (basically it does not work on some Samsung devices)
   + It is not possible to test broadcast receivers registered using LocalBroadcastManager. Use Context's register receiver instead
   + For now it is not possible to attach parcelable objects as extras but I am working on it...
+
+Contribution
+========
+Contributions are highly welcome
+
+##### Environment setup:
+1. Clone Intellij IDEA Community: `git://git.jetbrains.org/idea/community.git`. More on cloning: http://www.jetbrains.org/pages/viewpage.action?pageId=983225
+2. Checkout `173.XX` branch. Branch prefix is picked up from `plugin.xml`: `<idea-version since-build="173"/>`
+3. Open IntentSender project in IDEA
+4. Setup a new sdk: http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/setting_up_environment.html
+5. Open project settings and click on `SDKs` on the left side. Select SDK, created on previous step. Add `android.jar` and `ddmlib-XXX.jar` to the classpath. Both are located inside installation dir of the IDEA: `/Applications/IntelliJ IDEA CE.app/Contents/plugins/android/lib`    
 
 License
 =======

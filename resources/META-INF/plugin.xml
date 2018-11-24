@@ -38,7 +38,7 @@
 	</change-notes>
 
 	<!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-	<idea-version since-build="173"/>
+	<idea-version since-build="173"/>  <!-- Update branch to checkout in Readme.md when changing this -->
 
 	<!-- please see https://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
 		   on how to target different products -->
