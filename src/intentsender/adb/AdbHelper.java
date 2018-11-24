@@ -30,7 +30,7 @@ public class AdbHelper {
 	private TerminalOutputListener outputListener_;
 
 	private AdbHelper() {
-		AndroidDebugBridge.init(false);
+		AndroidDebugBridge.initIfNeeded(false);
 	}
 
 	public static AdbHelper getInstance() {
