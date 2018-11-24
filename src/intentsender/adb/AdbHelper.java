@@ -58,14 +58,20 @@ public class AdbHelper {
 				return adbPath;
 			}
 		}
-		Collection<File> sdkList = AndroidSdks.getInstance().getAndroidSdkPathsFromExistingPlatforms();
-		if (sdkList.size() > 0) {
-			String sdkPath = sdkList.iterator().next().getPath() + ADB_PATH_RELATIVE_TO_SDK_ROOT;
-			if (checkForAdbInPath(sdkPath)) {
-				saveAdbLocation(sdkPath);
-				return sdkPath;
+
+		try {
+			Collection<File> sdkList = AndroidSdks.getInstance().getAndroidSdkPathsFromExistingPlatforms();
+			if (sdkList.size() > 0) {
+				String sdkPath = sdkList.iterator().next().getPath() + ADB_PATH_RELATIVE_TO_SDK_ROOT;
+				if (checkForAdbInPath(sdkPath)) {
+					saveAdbLocation(sdkPath);
+					return sdkPath;
+				}
 			}
+		} catch (Exception ignored) {
+			// AndroidSdks internally crashes sometimes. Will just proceed to the next option
 		}
+
 		String android_home = System.getenv("ANDROID_HOME");
 		if (android_home != null) {
 			String sdkPath = android_home + ADB_PATH_RELATIVE_TO_SDK_ROOT;
