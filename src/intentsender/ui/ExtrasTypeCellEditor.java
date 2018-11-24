@@ -1,4 +1,4 @@
-package ui;
+package intentsender.ui;
 
 import com.intellij.openapi.ui.ComboBox;
 
@@ -10,7 +10,7 @@ import javax.swing.AbstractCellEditor;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
 
-import Models.ExtraField;
+import intentsender.Models.ExtraField;
 
 /**
  * Created by vfarafonov on 31.08.2015.

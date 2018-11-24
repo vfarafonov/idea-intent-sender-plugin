@@ -1,4 +1,4 @@
-package Models;
+package intentsender.Models;
 
 /**
  * Created by vfarafonov on 31.08.2015.

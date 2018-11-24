@@ -1,13 +1,11 @@
-package adb;
+package intentsender.adb;
 
-import com.android.ddmlib.AdbCommandRejectedException;
-import com.android.ddmlib.AndroidDebugBridge;
-import com.android.ddmlib.IDevice;
-import com.android.ddmlib.IShellOutputReceiver;
-import com.android.ddmlib.ShellCommandUnresponsiveException;
-import com.android.ddmlib.TimeoutException;
+import com.android.ddmlib.*;
 import com.android.tools.idea.sdk.AndroidSdks;
 import com.intellij.ide.util.PropertiesComponent;
+import intentsender.Models.Command;
+import intentsender.Models.ExtraField;
+import intentsender.Models.IntentFlags;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -15,10 +13,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.List;
-
-import Models.Command;
-import Models.ExtraField;
-import Models.IntentFlags;
 
 /**
  * Created by vfarafonov on 26.08.2015.

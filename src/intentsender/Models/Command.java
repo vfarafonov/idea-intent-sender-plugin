@@ -1,8 +1,8 @@
-package Models;
+package intentsender.Models;
 
 import java.util.List;
 
-import adb.AdbHelper;
+import intentsender.adb.AdbHelper;
 
 /**
  * Created by vfarafonov on 08.09.2015.

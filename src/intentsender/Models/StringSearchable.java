@@ -1,11 +1,11 @@
-package Models;
+package intentsender.Models;
 
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import diff.Searchable;
+import intentsender.diff.Searchable;
 
 /**
  * Created by vfarafonov on 01.01.2016.

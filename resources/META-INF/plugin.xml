@@ -46,7 +46,7 @@
 		<toolWindow
 			id="Intent Sender"
 			anchor="right"
-			factoryClass="ui.MainToolWindow"
+			factoryClass="intentsender.ui.MainToolWindowFactory"
 			secondary="true">
 		</toolWindow>
 
