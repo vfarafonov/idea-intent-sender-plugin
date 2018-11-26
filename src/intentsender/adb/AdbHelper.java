@@ -1,13 +1,11 @@
-package adb;
+package intentsender.adb;
 
-import com.android.ddmlib.AdbCommandRejectedException;
-import com.android.ddmlib.AndroidDebugBridge;
-import com.android.ddmlib.IDevice;
-import com.android.ddmlib.IShellOutputReceiver;
-import com.android.ddmlib.ShellCommandUnresponsiveException;
-import com.android.ddmlib.TimeoutException;
+import com.android.ddmlib.*;
 import com.android.tools.idea.sdk.AndroidSdks;
 import com.intellij.ide.util.PropertiesComponent;
+import intentsender.Models.Command;
+import intentsender.Models.ExtraField;
+import intentsender.Models.IntentFlags;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -15,10 +13,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.List;
-
-import Models.Command;
-import Models.ExtraField;
-import Models.IntentFlags;
 
 /**
  * Created by vfarafonov on 26.08.2015.
@@ -36,7 +30,7 @@ public class AdbHelper {
 	private TerminalOutputListener outputListener_;
 
 	private AdbHelper() {
-		AndroidDebugBridge.init(false);
+		AndroidDebugBridge.initIfNeeded(false);
 	}
 
 	public static AdbHelper getInstance() {
@@ -64,14 +58,20 @@ public class AdbHelper {
 				return adbPath;
 			}
 		}
-		Collection<File> sdkList = AndroidSdks.getInstance().getAndroidSdkPathsFromExistingPlatforms();
-		if (sdkList.size() > 0) {
-			String sdkPath = sdkList.iterator().next().getPath() + ADB_PATH_RELATIVE_TO_SDK_ROOT;
-			if (checkForAdbInPath(sdkPath)) {
-				saveAdbLocation(sdkPath);
-				return sdkPath;
+
+		try {
+			Collection<File> sdkList = AndroidSdks.getInstance().getAndroidSdkPathsFromExistingPlatforms();
+			if (sdkList.size() > 0) {
+				String sdkPath = sdkList.iterator().next().getPath() + ADB_PATH_RELATIVE_TO_SDK_ROOT;
+				if (checkForAdbInPath(sdkPath)) {
+					saveAdbLocation(sdkPath);
+					return sdkPath;
+				}
 			}
+		} catch (Exception ignored) {
+			// AndroidSdks internally crashes sometimes. Will just proceed to the next option
 		}
+
 		String android_home = System.getenv("ANDROID_HOME");
 		if (android_home != null) {
 			String sdkPath = android_home + ADB_PATH_RELATIVE_TO_SDK_ROOT;

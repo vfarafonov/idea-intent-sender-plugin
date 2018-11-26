@@ -1,10 +1,6 @@
-package ui;
+package intentsender.ui;
 
-import com.android.ddmlib.AdbCommandRejectedException;
-import com.android.ddmlib.AndroidDebugBridge;
-import com.android.ddmlib.IDevice;
-import com.android.ddmlib.ShellCommandUnresponsiveException;
-import com.android.ddmlib.TimeoutException;
+import com.android.ddmlib.*;
 import com.intellij.facet.FacetManager;
 import com.intellij.ide.util.TreeJavaClassChooserDialog;
 import com.intellij.openapi.module.Module;
@@ -14,24 +10,27 @@ import com.intellij.openapi.ui.popup.BalloonBuilder;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.psi.PsiClass;
 import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
-import com.intellij.ui.content.Content;
-import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.xml.GenericAttributeValue;
-
+import intentsender.Models.Command;
+import intentsender.Models.ExtraField;
+import intentsender.Models.IntentFlags;
+import intentsender.adb.AdbHelper;
+import intentsender.utils.HistoryUtils;
 import org.jetbrains.android.dom.manifest.Manifest;
 import org.jetbrains.android.facet.AndroidFacet;
 import org.jetbrains.android.facet.AndroidRootUtil;
 import org.jetbrains.android.util.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.Desktop;
-import java.awt.Dimension;
+import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.table.TableColumn;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -42,34 +41,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.table.TableColumn;
-
-import Models.Command;
-import Models.ExtraField;
-import Models.IntentFlags;
-import adb.AdbHelper;
-import utils.HistoryUtils;
-
 /**
  * Created by vfarafonov on 25.08.2015.
  */
-public class MainToolWindow implements ToolWindowFactory {
+public class MainToolWindow {
 	public static final String ISSUES_LINK = "https://github.com/WeezLabs/idea-intent-sender-plugin/issues";
 	public static final String EMPTY_OUTPUT = "No data to display";
 	private static final String UNKNOWN_ERROR = "Unknown error";
@@ -140,7 +115,9 @@ public class MainToolWindow implements ToolWindowFactory {
 	private String lastOutput_ = EMPTY_OUTPUT;
 
 	@SuppressWarnings("unchecked")
-	public MainToolWindow() {
+	public MainToolWindow(ToolWindow toolWindow) {
+		mainToolWindow = toolWindow;
+
 		flagsList_.setSelectedIndex(0);
 		// Initialize ComboBox
 		devicesComboBox.setRenderer(new DevicesListRenderer());
@@ -251,6 +228,10 @@ public class MainToolWindow implements ToolWindowFactory {
 				JOptionPane.showMessageDialog(toolWindowContent, scrollPane, "Last command output", JOptionPane.PLAIN_MESSAGE);
 			}
 		});
+	}
+
+	JPanel getContent() {
+		return toolWindowContent;
 	}
 
 	/**
@@ -656,14 +637,5 @@ public class MainToolWindow implements ToolWindowFactory {
 			}
 		}
 		return 0;
-	}
-
-	@Override
-	public void createToolWindowContent(Project project, ToolWindow toolWindow) {
-		project_ = project;
-		mainToolWindow = toolWindow;
-		ContentFactory factory = ContentFactory.SERVICE.getInstance();
-		Content content = factory.createContent(toolWindowContent, "", false);
-		mainToolWindow.getContentManager().addContent(content);
 	}
 }

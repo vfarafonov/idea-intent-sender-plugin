@@ -1,7 +1,7 @@
 <idea-plugin>
 	<id>com.weezlabs.intentSender</id>
 	<name>Android Intent Sender</name>
-	<version>0.8.0</version>
+	<version>0.9.0</version>
 	<vendor email="vfarafonov@weezlabs.com" url="https://weezlabs.com">Weezlabs</vendor>
 
 	<description><![CDATA[
@@ -11,6 +11,11 @@
 
 	<change-notes><![CDATA[
       <html>
+        <dl>
+            <dt>0.9.0</dt>
+            <dd>Fixed issue when IntentSender's tab was not shown<dd>
+            <dd>Fixed crash after window was opened in case adb was not located before<dd>
+        </dl>
         <dl>
             <dt>0.8.0</dt>
             <dd>Fixed compatibility with IntelliJ 2017.3 and Android Studio 3.1<dd>
@@ -33,7 +38,7 @@
 	</change-notes>
 
 	<!-- please see https://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-	<idea-version since-build="173"/>
+	<idea-version since-build="173"/>  <!-- Update branch to checkout in Readme.md when changing this -->
 
 	<!-- please see https://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
 		   on how to target different products -->
@@ -46,7 +51,7 @@
 		<toolWindow
 			id="Intent Sender"
 			anchor="right"
-			factoryClass="ui.MainToolWindow"
+			factoryClass="intentsender.ui.MainToolWindowFactory"
 			secondary="true">
 		</toolWindow>
 

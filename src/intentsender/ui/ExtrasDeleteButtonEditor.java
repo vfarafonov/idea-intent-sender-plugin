@@ -1,4 +1,4 @@
-package ui;
+package intentsender.ui;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;

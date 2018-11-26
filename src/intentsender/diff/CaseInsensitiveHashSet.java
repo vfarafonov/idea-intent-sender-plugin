@@ -1,4 +1,4 @@
-package diff;
+package intentsender.diff;
 
 import java.util.Collection;
 import java.util.HashSet;
