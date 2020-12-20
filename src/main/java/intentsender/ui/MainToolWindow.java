@@ -111,12 +111,13 @@ public class MainToolWindow {
 			});
 		}
 	};
-	private Project project_;
+	private final Project project_;
 	private String lastOutput_ = EMPTY_OUTPUT;
 
 	@SuppressWarnings("unchecked")
-	public MainToolWindow(ToolWindow toolWindow) {
+	public MainToolWindow(ToolWindow toolWindow, Project project) {
 		mainToolWindow = toolWindow;
+		project_ = project;
 
 		flagsList_.setSelectedIndex(0);
 		// Initialize ComboBox

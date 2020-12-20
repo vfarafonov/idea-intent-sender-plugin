@@ -1,0 +1,29 @@
+<idea-plugin>
+    <id>com.weezlabs.intentSender</id>
+    <name>Android Intent Sender</name>
+    <vendor email="vfarafonov@distillery.com" url="https://distillery.com">Distillery</vendor>
+
+    <description>
+        <![CDATA[
+            Plugin allows you to send intents with specified data and extras to android devices or emulators with adb command
+            "broadcast", "startactivity", "startservice".<br>
+            Full readme: <a href="https://github.com/WeezLabs/idea-intent-sender-plugin">here</a>
+        ]]>
+    </description>
+
+    <!-- Product and plugin compatibility requirements -->
+    <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+    <depends>org.jetbrains.android</depends>
+
+    <!-- TODO: Add icon, i.e.: icon="AllIcons.General.Modified" -->
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow
+                id="Intent Sender"
+                secondary="true"
+                anchor="right"
+                factoryClass="intentsender.ui.MainToolWindowFactory"
+        />
+    </extensions>
+</idea-plugin>

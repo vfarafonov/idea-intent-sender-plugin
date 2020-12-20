@@ -6,6 +6,7 @@ import com.intellij.ide.util.PropertiesComponent;
 import intentsender.Models.Command;
 import intentsender.Models.ExtraField;
 import intentsender.Models.IntentFlags;
+import org.jetbrains.android.sdk.AndroidSdkUtils;
 
 import java.io.File;
 import java.io.FilenameFilter;
