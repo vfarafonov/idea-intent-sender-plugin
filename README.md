@@ -6,7 +6,7 @@ Android Intent Sender is a plugin which allows you to send intents with specifie
 Full readme: <a href="https://github.com/WeezLabs/idea-intent-sender-plugin">here</a>
 <!-- Plugin description end -->
 
-Typical plugin use-cases:
+Typical use-cases of the plugin:
 1. Broadcast receivers testing (including intent filters testing for custom data schemes, mime-types and so on)
 2. Starting activities which are deep withing an app flow (even not exported ones)
 3. Launching services from the IDE
@@ -20,17 +20,17 @@ Typical plugin use-cases:
 # Installation
 Install the plugin automatically from the JetBrains repository or download the latest zip (https://plugins.jetbrains.com/plugin/7945?pr=) and follow next steps:
 - Open the plugin manager (File -> Settings -> Plugins (on the left pane) or by typing "plugin" in find action field (Help -> Find Action))
-- Click "Install plugin from disk...", select downloaded file and click the install button
+- Click "Install a plugin from disk...", select downloaded file and click the "install" button
 - Restart the IDE (will be prompted automatically)
 
 # Usage
-To open the plugin window click on the "Intent sender" button on the right side of the IDE or open it from the tool windows menu (View -> Tool Windows or from the icon on the bottom left corner of the IDE).
+To open the plugin window click on the "Intent sender" button on the right side of the IDE or open it from the tool windows menu (View -> Tool Windows or from the icon in the bottom left corner of the IDE).
 
-Specify intent parameters, select a component if needed, add extras and flags, and then just click on one of the send intent buttons. That's it.
+Specify intent parameters, select a component if needed, add extras and flags, and then just click on one of the "send intent" buttons. That's it.
 
 To restore previously sent commands you can use the button next to the "Intent parameters" section header.
 
-If you are adding any of the array extras, type items with comma as a separator and do not place space symbols between items
+If you are adding any of the array extras, type items with the comma as a separator and do not place space symbols between items
 
 # Typical use-cases samples
 * <b>Broadcast receiver testing.</b>
@@ -53,9 +53,9 @@ So to send a test broadcast message to a device we need to put `“simple_intent
 
 * <b>Activity or Service starting.</b>
 
-Imagine that the MessageActivity should be launched and the MessageActivity picks up a message id from an intent inside its onCreate (id type is long and extra Key is `“messge_id”`).  
-The component picker can be used to get the MessageActivity’s full component name and fill the User field. The Component name should be like `“com.some.package/.activities.MessageActivity”` and the User field is `“com.some.package”`. After that required extra data should be added and it is only left to press the “Start Activity” button and checkout launched MessageActivity on a device with the defined message opened.  
-Of course it can be easily checked with logging like:  
+Imagine that the MessageActivity should be launched, and the MessageActivity picks up a message id from an intent inside its onCreate (id type is long and extra Key is `“messge_id”`).  
+The component picker can be used to get the MessageActivity’s full component name and fill the User field. The Component name should be like `“com.some.package/.activities.MessageActivity”` and the User field is `“com.some.package”`. After that required extra data should be added, and it is only left to press the “Start Activity” button and checkout launched MessageActivity on a device with the defined message opened.  
+Of course, it can be easily checked with logging like:  
 `Log.d(LOG_TAG, "Message id: " + getIntent().getLongExtra("messageId", -1));`
 
 * <b>Custom data scheme testing.</b>
@@ -73,15 +73,15 @@ The scheme can be registered in the manifest with following lines of code (note:
 Inside an activity for this scheme we can put logging like:  
 `Log.d("TAG", "Intent data: " + getIntent().getDataString());`  
 So for testing we just put `“android.intent.action.VIEW”` inside the Action field and set `http://myhost.com/some_data` as the Data and click on the “Start Activity” button.  
-The app chooser will be shown on a device and after clicking on the app we can checkout logs:  
+The app chooser will be shown on a device and after clicking on the app we can check out logs:  
 `Intent data: http://myhost.com/some_data`  
 The same result will be achieved if we send a test sms message with text `“Testing scheme: http://myhost.com/some_data”` and click on a link there.
 
 * <b>Google Cloud Messaging (GCM) service testing</b>
 
 Imagine that a class GcmBroadcastReceiver is created for GCM messages handling and a json stored in a String with a Key `“message”` expected.  
-The GcmBroadcastReceiver will be registered in the manifest with the permission `android:permission="com.google.android.c2dm.permission.SEND"`. Unfortunately this permission will block the ADB command and we have to remove it during tests.  
-Intent filter for the GcmBroadcastReceiver:
+The GcmBroadcastReceiver will be registered in the manifest with the permission `android:permission="com.google.android.c2dm.permission.SEND"`. Unfortunately this permission will block the ADB command, and we have to remove it during tests.  
+Intent-filter for the GcmBroadcastReceiver:
 ```xml
 <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -94,7 +94,7 @@ To send a test GCM we need to set the Action as `“com.google.android.c2dm.inte
 
 + Starting not exported activities may not work on some devices (basically it does not work on some Samsung devices)
 + It is not possible to test broadcast receivers registered using LocalBroadcastManager. Use Context's register receiver instead
-+ For now it is not possible to attach parcelable objects as extras but I am working on it...
++ For now, it is not possible to attach parcelable objects as extras, but I am working on it...
 
 # Contribution
 
