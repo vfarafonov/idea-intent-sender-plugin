@@ -406,7 +406,7 @@ public class MainToolWindow {
 	 */
 	private void startAdbAndSwitchUI(String adbPath) {
 		final AdbHelper adbHelper = AdbHelper.getInstance();
-		if (adbHelper.initAdb(adbPath, devicesListener_)) {
+		if (adbHelper.initAdb(project_, adbPath, devicesListener_)) {
 			if (!adbHelper.isConnected()) {
 				locateAdbButton.setVisible(false);
 				startingAdbLabel.setVisible(true);

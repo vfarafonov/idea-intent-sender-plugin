@@ -4,7 +4,8 @@
 
 ## [Unreleased]
 ### Changed
-- Updating plugin so it is supported by the latest IDEA ersions
+- Updating plugin so it is supported by the latest IDEA versions.
+- Improve ADB detection and usage logic.
 
 ## [0.9.0]
 ### Fixed

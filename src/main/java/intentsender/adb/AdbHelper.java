@@ -3,11 +3,13 @@ package intentsender.adb;
 import com.android.ddmlib.*;
 import com.android.tools.idea.sdk.AndroidSdks;
 import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.openapi.project.Project;
 import intentsender.Models.Command;
 import intentsender.Models.ExtraField;
 import intentsender.Models.IntentFlags;
 import org.jetbrains.android.sdk.AndroidSdkUtils;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -107,16 +109,37 @@ public class AdbHelper {
 		propertiesComponent.setValue(ADB_PATH_KEY, adbLocation);
 	}
 
-	public boolean initAdb(String adbLocation, AndroidDebugBridge.IDeviceChangeListener listener) {
+	/**
+	 * Tries to retrieve adb using given path.
+	 *
+	 * @return AndroidDebugBridge instance or null if adb initialization failed.
+	 */
+	@Nullable
+	private AndroidDebugBridge initAdbWithPath(String adbLocation, AndroidDebugBridge.IDeviceChangeListener listener) {
+		AndroidDebugBridge adb = null;
 		if (adbLocation != null && !adbLocation.isEmpty()) {
 			try {
-				adb_ = AndroidDebugBridge.createBridge(adbLocation, true);
-				if (adb_ != null) {
-					AndroidDebugBridge.addDeviceChangeListener(listener);
-				}
+				adb = AndroidDebugBridge.createBridge(adbLocation, true);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		}
+		return adb;
+	}
+
+	// TODO: 12/20/20 Path can be determined internally. No need to pass it from outside
+	/**
+	 * Initializes adb.
+	 *
+	 * @return False if adb was not initialized. Case can be handled by letting user to pass alternative adb path.
+	 */
+	public boolean initAdb(Project project, String backupAdbPath, AndroidDebugBridge.IDeviceChangeListener listener) {
+		adb_ = AndroidSdkUtils.getDebugBridge(project);
+		if (adb_ == null) {
+			adb_ = initAdbWithPath(backupAdbPath, listener);
+		}
+		if (adb_ != null) {
+			AndroidDebugBridge.addDeviceChangeListener(listener);
 		}
 		return adb_ != null;
 	}
