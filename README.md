@@ -100,6 +100,9 @@ To send a test GCM we need to set the Action as `“com.google.android.c2dm.inte
 
 Contributions are highly welcome :)
 
+To run plugin during development, execute "Run Plugin" run configuration.  
+To get a zip archive, use `buildPlugin` gradle task
+
 # License
 
     Licensed under the Apache License, Version 2.0 (the "License");
