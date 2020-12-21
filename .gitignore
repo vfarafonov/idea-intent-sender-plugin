@@ -15,7 +15,9 @@ hs_err_pid*
 *.iml
 
 ## Directory-based project format:
-.idea/
+.gradle
+.idea
+build
 
 ## File-based project format:
 *.ipr

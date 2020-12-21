@@ -26,7 +26,7 @@
           </component>
           <component id="7246a" class="javax.swing.JButton" binding="updateDevices">
             <constraints>
-              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="1" use-parent-layout="false"/>
             </constraints>
             <properties>
               <icon value="actions/refresh.png"/>
@@ -232,7 +232,7 @@
                       </component>
                       <component id="90797" class="javax.swing.JButton" binding="editFlags">
                         <constraints>
-                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="1" use-parent-layout="false"/>
                         </constraints>
                         <properties>
                           <icon value="actions/edit.png"/>
@@ -261,10 +261,10 @@
                       </component>
                       <component id="6b882" class="javax.swing.JButton" binding="pickClassButton">
                         <constraints>
-                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="4" fill="0" indent="1" use-parent-layout="false"/>
                         </constraints>
                         <properties>
-                          <icon value="nodes/TreeOpen.png"/>
+                          <icon value="nodes/folder.png"/>
                           <text value=""/>
                         </properties>
                       </component>
