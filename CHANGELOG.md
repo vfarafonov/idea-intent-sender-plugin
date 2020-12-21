@@ -3,7 +3,17 @@
 # Intent Sender Changelog
 
 ## [Unreleased]
+### Added
 
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
 ## [0.10.0]
 ### Changed
 - Updating plugin so it is supported by the latest IDEA versions.
