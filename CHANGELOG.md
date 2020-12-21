@@ -3,6 +3,8 @@
 # Intent Sender Changelog
 
 ## [Unreleased]
+
+## [0.10.0]
 ### Changed
 - Updating plugin so it is supported by the latest IDEA versions.
 - Improve ADB detection and usage logic.
