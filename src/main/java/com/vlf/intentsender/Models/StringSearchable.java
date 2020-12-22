@@ -1,11 +1,10 @@
-package intentsender.Models;
+package com.vlf.intentsender.Models;
 
+import com.vlf.intentsender.diff.Searchable;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import intentsender.diff.Searchable;
 
 /**
  * Created by vfarafonov on 01.01.2016.

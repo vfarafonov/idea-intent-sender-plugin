@@ -1,4 +1,4 @@
-package intentsender.ui;
+package com.vlf.intentsender.ui;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.PlainDocument;
 
-import intentsender.utils.IntentActionsHelper;
+import com.vlf.intentsender.utils.IntentActionsHelper;
 
 /**
  * Created by vfarafonov on 09.03.2016.

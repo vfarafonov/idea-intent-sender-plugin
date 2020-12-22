@@ -1,4 +1,4 @@
-package intentsender.utils;
+package com.vlf.intentsender.utils;
 
 import java.util.Arrays;
 import java.util.List;

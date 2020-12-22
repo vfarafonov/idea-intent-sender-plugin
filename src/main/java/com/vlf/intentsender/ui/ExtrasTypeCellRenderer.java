@@ -1,11 +1,11 @@
-package intentsender.ui;
+package com.vlf.intentsender.ui;
 
 import java.awt.Component;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import intentsender.Models.ExtraField;
+import com.vlf.intentsender.Models.ExtraField;
 
 /**
  * Created by vfarafonov on 31.08.2015.

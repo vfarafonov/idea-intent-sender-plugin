@@ -1,4 +1,4 @@
-package intentsender.ui;
+package com.vlf.intentsender.ui;
 
 import java.awt.Component;
 

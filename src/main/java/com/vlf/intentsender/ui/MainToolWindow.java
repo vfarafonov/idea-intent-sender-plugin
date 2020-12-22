@@ -1,4 +1,4 @@
-package intentsender.ui;
+package com.vlf.intentsender.ui;
 
 import com.android.ddmlib.*;
 import com.intellij.facet.FacetManager;
@@ -16,11 +16,11 @@ import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.xml.GenericAttributeValue;
-import intentsender.Models.Command;
-import intentsender.Models.ExtraField;
-import intentsender.Models.IntentFlags;
-import intentsender.adb.AdbHelper;
-import intentsender.utils.HistoryUtils;
+import com.vlf.intentsender.Models.Command;
+import com.vlf.intentsender.Models.ExtraField;
+import com.vlf.intentsender.Models.IntentFlags;
+import com.vlf.intentsender.adb.AdbHelper;
+import com.vlf.intentsender.utils.HistoryUtils;
 import org.jetbrains.android.dom.manifest.Manifest;
 import org.jetbrains.android.facet.AndroidFacet;
 import org.jetbrains.android.facet.AndroidRootUtil;

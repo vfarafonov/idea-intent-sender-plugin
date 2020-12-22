@@ -1,4 +1,4 @@
-package intentsender.ui;
+package com.vlf.intentsender.ui;
 
 import com.android.ddmlib.IDevice;
 import com.intellij.ui.ListCellRendererWrapper;

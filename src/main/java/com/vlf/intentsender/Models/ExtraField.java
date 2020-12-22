@@ -1,4 +1,4 @@
-package intentsender.Models;
+package com.vlf.intentsender.Models;
 
 /**
  * Created by vfarafonov on 31.08.2015.

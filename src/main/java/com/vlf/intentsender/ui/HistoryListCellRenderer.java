@@ -1,11 +1,11 @@
-package intentsender.ui;
+package com.vlf.intentsender.ui;
 
 import java.awt.Component;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 
-import intentsender.Models.Command;
+import com.vlf.intentsender.Models.Command;
 
 /**
  * Created by vfarafonov on 08.09.2015.
