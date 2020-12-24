@@ -1,4 +1,4 @@
-package com.vlf.intentsender.ui;
+package com.vlf.intentsender.ui.views;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ import com.vlf.intentsender.Models.ExtraField;
 /**
  * Created by vfarafonov on 31.08.2015.
  */
-class ExtrasTableModel extends AbstractTableModel {
+public class ExtrasTableModel extends AbstractTableModel {
 	public final static int COLUMNS_COUNT = 4;
 	private final static String[] COLUMN_NAMES = new String[] {"Type", "Key", "Value", ""};
 

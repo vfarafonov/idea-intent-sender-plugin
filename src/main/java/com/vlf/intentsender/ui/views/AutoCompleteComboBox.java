@@ -1,4 +1,4 @@
-package com.vlf.intentsender.ui;
+package com.vlf.intentsender.ui.views;
 
 import java.util.ArrayList;
 import java.util.List;

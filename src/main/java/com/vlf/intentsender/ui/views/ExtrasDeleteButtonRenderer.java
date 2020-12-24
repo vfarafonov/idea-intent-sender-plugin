@@ -1,4 +1,4 @@
-package com.vlf.intentsender.ui;
+package com.vlf.intentsender.ui.views;
 
 import java.awt.Component;
 
@@ -9,7 +9,7 @@ import javax.swing.table.TableCellRenderer;
 /**
  * Created by vfarafonov on 31.08.2015.
  */
-class ExtrasDeleteButtonRenderer extends JButton implements TableCellRenderer {
+public class ExtrasDeleteButtonRenderer extends JButton implements TableCellRenderer {
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 		setText("Delete");

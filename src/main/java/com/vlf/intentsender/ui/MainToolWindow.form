@@ -343,7 +343,7 @@
                       </component>
                     </children>
                   </grid>
-                  <component id="1e15d" class="com.vlf.intentsender.ui.AutoCompleteComboBox" binding="actionsComboBox">
+                  <component id="1e15d" class="com.vlf.intentsender.ui.views.AutoCompleteComboBox" binding="actionsComboBox">
                     <constraints>
                       <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="3" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>

@@ -1,4 +1,4 @@
-package com.vlf.intentsender.ui;
+package com.vlf.intentsender.ui.views;
 
 import java.awt.Component;
 
@@ -10,7 +10,7 @@ import com.vlf.intentsender.Models.ExtraField;
 /**
  * Created by vfarafonov on 31.08.2015.
  */
-class ExtrasTypeCellRenderer extends DefaultTableCellRenderer {
+public class ExtrasTypeCellRenderer extends DefaultTableCellRenderer {
 
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {

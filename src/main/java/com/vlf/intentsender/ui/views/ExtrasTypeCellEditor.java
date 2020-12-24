@@ -1,4 +1,4 @@
-package com.vlf.intentsender.ui;
+package com.vlf.intentsender.ui.views;
 
 import com.intellij.openapi.ui.ComboBox;
 
@@ -15,7 +15,7 @@ import com.vlf.intentsender.Models.ExtraField;
 /**
  * Created by vfarafonov on 31.08.2015.
  */
-class ExtrasTypeCellEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
+public class ExtrasTypeCellEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
 	private ExtraField.ExtrasTypes currentType_;
 
 	@Override
