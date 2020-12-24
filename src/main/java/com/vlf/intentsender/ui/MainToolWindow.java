@@ -1,6 +1,9 @@
 package com.vlf.intentsender.ui;
 
-import com.android.ddmlib.*;
+import com.android.ddmlib.AdbCommandRejectedException;
+import com.android.ddmlib.IDevice;
+import com.android.ddmlib.ShellCommandUnresponsiveException;
+import com.android.ddmlib.TimeoutException;
 import com.intellij.facet.FacetManager;
 import com.intellij.ide.util.TreeJavaClassChooserDialog;
 import com.intellij.openapi.module.Module;
@@ -20,12 +23,15 @@ import com.vlf.intentsender.Models.Command;
 import com.vlf.intentsender.Models.ExtraField;
 import com.vlf.intentsender.Models.IntentFlags;
 import com.vlf.intentsender.adb.AdbHelper;
+import com.vlf.intentsender.ui.views.*;
 import com.vlf.intentsender.utils.HistoryUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.android.dom.manifest.Manifest;
 import org.jetbrains.android.facet.AndroidFacet;
 import org.jetbrains.android.facet.AndroidRootUtil;
 import org.jetbrains.android.util.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -33,6 +39,7 @@ import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -44,7 +51,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Created by vfarafonov on 25.08.2015.
  */
-public class MainToolWindow {
+public class MainToolWindow implements MainToolWindowContract.View {
 	public static final String ISSUES_LINK = "https://github.com/WeezLabs/idea-intent-sender-plugin/issues";
 	public static final String EMPTY_OUTPUT = "No data to display";
 	private static final String UNKNOWN_ERROR = "Unknown error";
@@ -80,66 +87,35 @@ public class MainToolWindow {
 	private AutoCompleteComboBox actionsComboBox;
 	private ToolWindow mainToolWindow;
 	private IDevice[] devices_ = {};
-	private final AndroidDebugBridge.IDeviceChangeListener devicesListener_ = new AndroidDebugBridge.IDeviceChangeListener() {
-		@Override
-		public void deviceConnected(IDevice iDevice) {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					updateConnectedDevices();
-				}
-			});
-		}
-
-		@Override
-		public void deviceDisconnected(IDevice iDevice) {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					updateConnectedDevices();
-				}
-			});
-		}
-
-		@Override
-		public void deviceChanged(IDevice iDevice, int i) {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					updateConnectedDevices();
-				}
-			});
-		}
-	};
 	private final Project project_;
 	private String lastOutput_ = EMPTY_OUTPUT;
+
+	private final MainToolWindowContract.Presenter presenter_;
 
 	@SuppressWarnings("unchecked")
 	public MainToolWindow(ToolWindow toolWindow, Project project) {
 		mainToolWindow = toolWindow;
 		project_ = project;
 
+		presenter_ = new MainToolWindowPresenter(this, project);
+
 		flagsList_.setSelectedIndex(0);
 		// Initialize ComboBox
 		devicesComboBox.setRenderer(new DevicesListRenderer());
 		devicesComboBox.setMaximumRowCount(10);
-		locateAdbButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				pickAdbLocation();
+		devicesComboBox.addItemListener(itemEvent -> {
+			if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
+				presenter_.onDeviceSelected((IDevice) itemEvent.getItem());
 			}
 		});
-		String adbLocation = AdbHelper.getAdbLocation();
-		if (adbLocation == null) {
-			toggleLocateAdbVisibility(true);
-		} else {
-			hideUi();
-			startAdbAndSwitchUI(adbLocation);
-		}
+		locateAdbButton.addActionListener(e -> {
+			presenter_.onLocateAdbClicked();
+		});
+
 		updateDevices.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				updateConnectedDevices();
+				presenter_.updateConnectedDevices();
 			}
 		});
 		sendIntentButton.addActionListener(new ActionListener() {
@@ -229,6 +205,8 @@ public class MainToolWindow {
 				JOptionPane.showMessageDialog(toolWindowContent, scrollPane, "Last command output", JOptionPane.PLAIN_MESSAGE);
 			}
 		});
+
+		presenter_.onViewStart();
 	}
 
 	JPanel getContent() {
@@ -369,96 +347,20 @@ public class MainToolWindow {
 		flagsTextField.setText(Arrays.toString(flagsList_.getSelectedValues()));
 	}
 
-	/**
-	 * Displays file picker and checks if picked file is adb executable
-	 */
-	private void pickAdbLocation() {
-		JFileChooser adbFileChooser = new JFileChooser();
-		adbFileChooser.setFileFilter(new FileFilter() {
-			@Override
-			public boolean accept(File f) {
-				if (f.isDirectory()) {
-					return true;
-				}
-				String nameWithoutExtension = f.getName();
-				int lastDotIndex = nameWithoutExtension.lastIndexOf(".");
-				if (lastDotIndex != -1) {
-					nameWithoutExtension = nameWithoutExtension.substring(0, lastDotIndex);
-				}
-				return nameWithoutExtension.equalsIgnoreCase("adb");
-			}
-
-			@Override
-			public String getDescription() {
-				return "Adb executable";
-			}
-		});
-		int returnValue = adbFileChooser.showDialog(toolWindowContent, "Pick");
-		if (returnValue == JFileChooser.APPROVE_OPTION) {
-			File file = adbFileChooser.getSelectedFile();
-			AdbHelper.saveAdbLocation(file.getAbsolutePath());
-			startAdbAndSwitchUI(file.getAbsolutePath());
-		}
-	}
-
-	/**
-	 * Checks if adb is connected and switches UI accordingly
-	 */
-	private void startAdbAndSwitchUI(String adbPath) {
-		final AdbHelper adbHelper = AdbHelper.getInstance();
-		if (adbHelper.initAdb(project_, adbPath, devicesListener_)) {
-			if (!adbHelper.isConnected()) {
-				locateAdbButton.setVisible(false);
-				startingAdbLabel.setVisible(true);
-				startingAdbLabel.getParent().invalidate();
-				startingAdbLabel.getParent().validate();
-				startingAdbLabel.getParent().repaint();
-				new SwingWorker<Void, Void>() {
-
-					@Override
-					protected Void doInBackground() throws Exception {
-						adbHelper.restartAdb();
-						return null;
-					}
-
-					@Override
-					protected void done() {
-						startingAdbLabel.setVisible(false);
-						startingAdbLabel.getParent().invalidate();
-						startingAdbLabel.getParent().validate();
-						startingAdbLabel.getParent().repaint();
-						toggleLocateAdbVisibility(false);
-						updateConnectedDevices();
-					}
-				}.execute();
-			} else {
-				toggleLocateAdbVisibility(false);
-				updateConnectedDevices();
-			}
-		} else {
-			toggleLocateAdbVisibility(true);
-		}
-	}
-
-	private void toggleLocateAdbVisibility(boolean isLocateButtonVisible) {
-		locateAdbButton.setVisible(isLocateButtonVisible);
-		devicesComboBox.setVisible(!isLocateButtonVisible);
-		updateDevices.setVisible(!isLocateButtonVisible);
-		parametersScrollPane.setVisible(!isLocateButtonVisible);
-		sendButtonsPanel.setVisible(!isLocateButtonVisible);
+	@Override
+	public void setLocateAdbButtonVisible(boolean isVisible) {
+		locateAdbButton.setVisible(isVisible);
 		locateAdbButton.getParent().invalidate();
 		locateAdbButton.getParent().validate();
 		locateAdbButton.getParent().repaint();
 	}
 
-	private void hideUi() {
-		devicesComboBox.setVisible(false);
-		updateDevices.setVisible(false);
-		parametersScrollPane.setVisible(false);
-		sendButtonsPanel.setVisible(false);
-		locateAdbButton.getParent().invalidate();
-		locateAdbButton.getParent().validate();
-		locateAdbButton.getParent().repaint();
+	@Override
+	public void setIntentCreationLayoutVisible(boolean isVisible) {
+		devicesComboBox.setVisible(isVisible);
+		updateDevices.setVisible(isVisible);
+		parametersScrollPane.setVisible(isVisible);
+		sendButtonsPanel.setVisible(isVisible);
 	}
 
 	/**
@@ -523,7 +425,7 @@ public class MainToolWindow {
 		flags.remove(IntentFlags.NONE);
 		final Command command = new Command(action, data, category, mime, component, user, extras, flags, type);
 
-		toggleStartButtonsAvailability(false);
+		enableStartButtons(false);
 		new SwingWorker<String, String>() {
 
 			@Override
@@ -564,15 +466,9 @@ public class MainToolWindow {
 					error = e.getMessage() != null ? e.getMessage() : UNKNOWN_ERROR;
 				}
 				handleSendingResult(error, command);
-				toggleStartButtonsAvailability(true);
+				enableStartButtons(true);
 			}
 		}.execute();
-	}
-
-	private void toggleStartButtonsAvailability(boolean isEnabled) {
-		startActivityButton.setEnabled(isEnabled);
-		startServiceButton.setEnabled(isEnabled);
-		sendIntentButton.setEnabled(isEnabled);
 	}
 
 	/**
@@ -600,43 +496,61 @@ public class MainToolWindow {
 		builder.createBalloon().showInCenterOf(sendButtonsPanel);
 	}
 
-	/**
-	 * Updates devices list keeping selected device if it is still connected
-	 */
-	@SuppressWarnings("unchecked")
-	private void updateConnectedDevices() {
-		AdbHelper helper = AdbHelper.getInstance();
-		String selectedSerial = null;
-		Object selectedItem = devicesComboBox.getSelectedItem();
-		if (selectedItem != null && selectedItem instanceof IDevice) {
-			selectedSerial = ((IDevice) selectedItem).getSerialNumber();
-		}
-		devices_ = helper.getDevices();
-		if (devices_.length == 0) {
-			String[] emptyList = {"Devices not found"};
-			devicesComboBox.setModel(new DefaultComboBoxModel<String>(emptyList));
-			toggleStartButtonsAvailability(false);
-		} else {
-			devicesComboBox.setModel(new DefaultComboBoxModel<IDevice>(devices_));
-			devicesComboBox.setSelectedIndex(findSelectionIndex(selectedSerial));
-			toggleStartButtonsAvailability(true);
+	@Override
+	public void setAdbInitProgressIndicatorVisible(boolean isVisible) {
+		startingAdbLabel.setVisible(isVisible);
+		startingAdbLabel.getParent().invalidate();
+		startingAdbLabel.getParent().validate();
+		startingAdbLabel.getParent().repaint();
+	}
+
+	@Override
+	public void showNoDevicesConnected() {
+		String[] listWithEmptyItemNote = new String[]{"Devices not found"};
+		devicesComboBox.setModel(new DefaultComboBoxModel<>(listWithEmptyItemNote));
+	}
+
+	@Override
+	public void showAvailableDevices(@NotNull IDevice[] devices, @Nullable IDevice selectedDevice) {
+		devicesComboBox.setModel(new DefaultComboBoxModel<>(devices));
+
+		int selectedIndex = ArrayUtils.indexOf(devices, selectedDevice);
+		devicesComboBox.setSelectedIndex(selectedIndex);
+	}
+
+	@Override
+	public void pickAdbLocation() {
+		JFileChooser adbFileChooser = new JFileChooser();
+		adbFileChooser.setFileFilter(new FileFilter() {
+			@Override
+			public boolean accept(File f) {
+				if (f.isDirectory()) {
+					return true;
+				}
+				String nameWithoutExtension = f.getName();
+				int lastDotIndex = nameWithoutExtension.lastIndexOf(".");
+				if (lastDotIndex != -1) {
+					nameWithoutExtension = nameWithoutExtension.substring(0, lastDotIndex);
+				}
+				return nameWithoutExtension.equalsIgnoreCase("adb");
+			}
+
+			@Override
+			public String getDescription() {
+				return "Adb executable";
+			}
+		});
+		int returnValue = adbFileChooser.showDialog(toolWindowContent, "Pick");
+		if (returnValue == JFileChooser.APPROVE_OPTION) {
+			File file = adbFileChooser.getSelectedFile();
+			presenter_.onAdbLocationPicked(file);
 		}
 	}
 
-	/**
-	 * Finds device index from list by serial number
-	 *
-	 * @return Device index in a list. Default value - 0
-	 */
-	private int findSelectionIndex(String selectedSerial) {
-		if (selectedSerial == null) {
-			return 0;
-		}
-		for (int i = 0; i < devices_.length; i++) {
-			if (devices_[i].getSerialNumber().equals(selectedSerial)) {
-				return i;
-			}
-		}
-		return 0;
+	@Override
+	public void enableStartButtons(boolean isEnabled) {
+		startActivityButton.setEnabled(isEnabled);
+		startServiceButton.setEnabled(isEnabled);
+		sendIntentButton.setEnabled(isEnabled);
 	}
 }
