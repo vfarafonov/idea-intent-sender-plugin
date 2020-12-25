@@ -3,7 +3,9 @@ package com.vlf.intentsender.ui
 import com.android.ddmlib.AndroidDebugBridge.IDeviceChangeListener
 import com.android.ddmlib.IDevice
 import com.intellij.openapi.project.Project
+import com.vlf.intentsender.Models.Command
 import com.vlf.intentsender.adb.AdbHelper
+import com.vlf.intentsender.utils.HistoryUtils
 import java.io.File
 import javax.swing.SwingUtilities
 import javax.swing.SwingWorker
@@ -49,7 +51,7 @@ class MainToolWindowPresenter(
                 view.setLocateAdbButtonVisible(false)
                 view.setIntentCreationLayoutVisible(true)
 
-                updateConnectedDevices()
+                onUpdateDevicesClicked()
             }
         } else {
             view.setLocateAdbButtonVisible(false)
@@ -64,7 +66,7 @@ class MainToolWindowPresenter(
     /**
      * Updates devices list keeping selected device if it is still connected
      */
-    override fun updateConnectedDevices() {
+    override fun onUpdateDevicesClicked() {
         val helper = AdbHelper.getInstance()
 
         val devices = helper.devices
@@ -85,6 +87,15 @@ class MainToolWindowPresenter(
         selectedDeviceSerial = device.serialNumber
     }
 
+    override fun onShowHistoryClicked() {
+        val commandsHistory = HistoryUtils.getCommandsFromHistory()
+        view.showCommandsFromHistoryChooser(commandsHistory)
+    }
+
+    override fun onCommandSelectedFromHistory(command: Command) {
+        view.updateUiFromCommand(command)
+    }
+
     private inner class RestartAdbWorker(
         private val adbHelper: AdbHelper
     ) : SwingWorker<Void?, Void?>() {
@@ -100,22 +111,22 @@ class MainToolWindowPresenter(
             view.setLocateAdbButtonVisible(false)
             view.setIntentCreationLayoutVisible(true)
 
-            updateConnectedDevices()
+            onUpdateDevicesClicked()
         }
     }
 
     private inner class DevicesListener : IDeviceChangeListener {
 
         override fun deviceConnected(iDevice: IDevice) {
-            SwingUtilities.invokeLater { updateConnectedDevices() }
+            SwingUtilities.invokeLater { onUpdateDevicesClicked() }
         }
 
         override fun deviceDisconnected(iDevice: IDevice) {
-            SwingUtilities.invokeLater { updateConnectedDevices() }
+            SwingUtilities.invokeLater { onUpdateDevicesClicked() }
         }
 
         override fun deviceChanged(iDevice: IDevice, i: Int) {
-            SwingUtilities.invokeLater { updateConnectedDevices() }
+            SwingUtilities.invokeLater { onUpdateDevicesClicked() }
         }
     }
 }

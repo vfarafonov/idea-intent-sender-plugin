@@ -48,9 +48,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Created by vfarafonov on 25.08.2015.
- */
 public class MainToolWindow implements MainToolWindowContract.View {
 	public static final String ISSUES_LINK = "https://github.com/WeezLabs/idea-intent-sender-plugin/issues";
 	public static final String EMPTY_OUTPUT = "No data to display";
@@ -83,10 +80,9 @@ public class MainToolWindow implements MainToolWindowContract.View {
 	private JTextField userTextField;
 	private JCheckBox addUserCheckBox;
 	private JButton sendFeedbackButton;
-	private JButton showTerminalOutpuButton;
+	private JButton showTerminalOutputButton;
 	private AutoCompleteComboBox actionsComboBox;
 	private ToolWindow mainToolWindow;
-	private IDevice[] devices_ = {};
 	private final Project project_;
 	private String lastOutput_ = EMPTY_OUTPUT;
 
@@ -108,16 +104,8 @@ public class MainToolWindow implements MainToolWindowContract.View {
 				presenter_.onDeviceSelected((IDevice) itemEvent.getItem());
 			}
 		});
-		locateAdbButton.addActionListener(e -> {
-			presenter_.onLocateAdbClicked();
-		});
-
-		updateDevices.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				presenter_.updateConnectedDevices();
-			}
-		});
+		locateAdbButton.addActionListener(__ -> presenter_.onLocateAdbClicked());
+		updateDevices.addActionListener(__ -> presenter_.onUpdateDevicesClicked());
 		sendIntentButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -136,31 +124,13 @@ public class MainToolWindow implements MainToolWindowContract.View {
 				sendCommand(AdbHelper.CommandType.START_SERVICE);
 			}
 		});
-		pickClassButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				showClassPicker();
-			}
+		pickClassButton.addActionListener(__ -> showClassPicker());
+		editFlags.addActionListener(__ -> showFlagsDialog());
+		addExtraButton.addActionListener(__ -> {
+			addExtraLine();
+			updateTableVisibility();
 		});
-		editFlags.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				showFlagsDialog();
-			}
-		});
-		addExtraButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				addExtraLine();
-				updateTableVisibility();
-			}
-		});
-		historyButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				showHistoryDialog();
-			}
-		});
+		historyButton.addActionListener(__ -> presenter_.onShowHistoryClicked());
 
 		// Set up extras table
 		tableModel_ = new ExtrasTableModel();
@@ -194,7 +164,7 @@ public class MainToolWindow implements MainToolWindowContract.View {
 			}
 		});
 		updateFlagsTextField();
-		showTerminalOutpuButton.addActionListener(new ActionListener() {
+		showTerminalOutputButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JTextArea textArea = new JTextArea(lastOutput_, 15, 0);
@@ -211,55 +181,6 @@ public class MainToolWindow implements MainToolWindowContract.View {
 
 	JPanel getContent() {
 		return toolWindowContent;
-	}
-
-	/**
-	 * Shows up history dialog
-	 */
-	private void showHistoryDialog() {
-		JBList commandsList = new JBList(HistoryUtils.getCommandsFromHistory());
-		commandsList.setCellRenderer(new HistoryListCellRenderer());
-		commandsList.setEmptyText("No data to display");
-		commandsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-		String[] buttons = {"OK", "Cancel"};
-		int result = JOptionPane.showOptionDialog(toolWindowContent, commandsList, "Command history", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, buttons, buttons[0]);
-		if (result == 0) {
-			updateUiFromCommand((Command) commandsList.getSelectedValue());
-		}
-	}
-
-	/**
-	 * Fills up vies from given command
-	 */
-	private void updateUiFromCommand(Command command) {
-		if (command == null) {
-			return;
-		}
-		actionsComboBox.setText(command.getAction());
-		dataTextField.setText(command.getData());
-		categoryTextField.setText(command.getCategory());
-		mimeTextField.setText(command.getMimeType());
-		componentTextField.setText(command.getComponent());
-		userTextField.setText(command.getUser());
-		flagsList_.removeSelectionInterval(0, flagsList_.getItemsCount());
-		List<IntentFlags> flags = command.getFlags();
-		if (flags != null && flags.size() > 0) {
-			for (IntentFlags flag : command.getFlags()) {
-				flagsList_.setSelectedValue(flag, false);
-			}
-		} else {
-			flagsList_.setSelectedIndex(0);
-		}
-		updateFlagsTextField();
-		tableModel_.removeAllRows();
-		List<ExtraField> extras = command.getExtras();
-		if (extras != null && extras.size() > 0) {
-			for (ExtraField extra : extras) {
-				tableModel_.addRow(extra);
-			}
-		}
-		updateTableVisibility();
 	}
 
 	/**
@@ -552,5 +473,56 @@ public class MainToolWindow implements MainToolWindowContract.View {
 		startActivityButton.setEnabled(isEnabled);
 		startServiceButton.setEnabled(isEnabled);
 		sendIntentButton.setEnabled(isEnabled);
+	}
+
+	@Override
+	public void showCommandsFromHistoryChooser(@NotNull List<? extends Command> commandsHistory) {
+		JBList commandsList = new JBList(commandsHistory);
+		commandsList.setCellRenderer(new HistoryListCellRenderer());
+		commandsList.setEmptyText("No data to display");
+		commandsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		String[] buttons = {"OK", "Cancel"};
+		int result = JOptionPane.showOptionDialog(
+				toolWindowContent,
+				commandsList,
+				"Command history",
+				JOptionPane.YES_NO_CANCEL_OPTION,
+				JOptionPane.PLAIN_MESSAGE,
+				null,
+				buttons,
+				buttons[0]
+		);
+		if (result == 0) {
+			presenter_.onCommandSelectedFromHistory((Command) commandsList.getSelectedValue());
+		}
+	}
+
+	@Override
+	public void updateUiFromCommand(@NotNull Command command) {
+		actionsComboBox.setText(command.getAction());
+		dataTextField.setText(command.getData());
+		categoryTextField.setText(command.getCategory());
+		mimeTextField.setText(command.getMimeType());
+		componentTextField.setText(command.getComponent());
+		userTextField.setText(command.getUser());
+		flagsList_.removeSelectionInterval(0, flagsList_.getItemsCount());
+		List<IntentFlags> flags = command.getFlags();
+		if (flags != null && flags.size() > 0) {
+			for (IntentFlags flag : command.getFlags()) {
+				flagsList_.setSelectedValue(flag, false);
+			}
+		} else {
+			flagsList_.setSelectedIndex(0);
+		}
+		updateFlagsTextField();
+		tableModel_.removeAllRows();
+		List<ExtraField> extras = command.getExtras();
+		if (extras != null && extras.size() > 0) {
+			for (ExtraField extra : extras) {
+				tableModel_.addRow(extra);
+			}
+		}
+		updateTableVisibility();
 	}
 }

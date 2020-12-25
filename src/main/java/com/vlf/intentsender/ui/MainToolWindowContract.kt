@@ -1,6 +1,7 @@
 package com.vlf.intentsender.ui
 
 import com.android.ddmlib.IDevice
+import com.vlf.intentsender.Models.Command
 import java.io.File
 
 interface MainToolWindowContract {
@@ -20,6 +21,10 @@ interface MainToolWindowContract {
         fun pickAdbLocation()
 
         fun enableStartButtons(isEnabled: Boolean)
+
+        fun showCommandsFromHistoryChooser(commandsHistory: List<Command>)
+
+        fun updateUiFromCommand(command: Command)
     }
 
     interface Presenter {
@@ -28,10 +33,14 @@ interface MainToolWindowContract {
 
         fun onAdbLocationPicked(adbFile: File)
 
-        fun updateConnectedDevices()
+        fun onUpdateDevicesClicked()
 
         fun onViewStart()
 
         fun onDeviceSelected(device: IDevice)
+
+        fun onShowHistoryClicked()
+
+        fun onCommandSelectedFromHistory(command: Command)
     }
 }
