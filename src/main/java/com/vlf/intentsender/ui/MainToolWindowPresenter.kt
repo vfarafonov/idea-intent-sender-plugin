@@ -6,7 +6,9 @@ import com.intellij.openapi.project.Project
 import com.vlf.intentsender.Models.Command
 import com.vlf.intentsender.adb.AdbHelper
 import com.vlf.intentsender.utils.HistoryUtils
+import java.awt.Desktop
 import java.io.File
+import java.net.URI
 import javax.swing.SwingUtilities
 import javax.swing.SwingWorker
 
@@ -94,6 +96,21 @@ class MainToolWindowPresenter(
 
     override fun onCommandSelectedFromHistory(command: Command) {
         view.updateUiFromCommand(command)
+    }
+
+    override fun onSendFeedbackClicked() {
+        if (!Desktop.isDesktopSupported()) {
+            return
+        }
+        with(Desktop.getDesktop()) {
+            if (isSupported(Desktop.Action.BROWSE)) {
+                try {
+                    browse(URI(MainToolWindow.ISSUES_LINK))
+                } catch (exc: Exception) {
+                    exc.printStackTrace()
+                }
+            }
+        }
     }
 
     private inner class RestartAdbWorker(

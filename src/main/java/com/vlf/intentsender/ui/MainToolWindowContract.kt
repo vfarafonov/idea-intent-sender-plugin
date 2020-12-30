@@ -42,5 +42,7 @@ interface MainToolWindowContract {
         fun onShowHistoryClicked()
 
         fun onCommandSelectedFromHistory(command: Command)
+
+        fun onSendFeedbackClicked()
     }
 }

@@ -42,7 +42,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -153,14 +152,7 @@ public class MainToolWindow implements MainToolWindowContract.View {
 		sendFeedbackButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-				if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
-					try {
-						desktop.browse(new URI(ISSUES_LINK));
-					} catch (Exception exc) {
-						exc.printStackTrace();
-					}
-				}
+				presenter_.onSendFeedbackClicked();
 			}
 		});
 		updateFlagsTextField();
