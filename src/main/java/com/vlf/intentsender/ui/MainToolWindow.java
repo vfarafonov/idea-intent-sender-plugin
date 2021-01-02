@@ -159,12 +159,7 @@ public class MainToolWindow implements MainToolWindowContract.View {
 		showTerminalOutputButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JTextArea textArea = new JTextArea(lastOutput_, 15, 0);
-				textArea.setEditable(false);
-				textArea.setLineWrap(true);
-				JBScrollPane scrollPane = new JBScrollPane(textArea);
-				scrollPane.setPreferredSize(new Dimension(toolWindowContent.getWidth(), (int) (toolWindowContent.getHeight() * 0.5f)));
-				JOptionPane.showMessageDialog(toolWindowContent, scrollPane, "Last command output", JOptionPane.PLAIN_MESSAGE);
+				presenter_.onShowTerminalOutputClicked();
 			}
 		});
 
@@ -516,5 +511,15 @@ public class MainToolWindow implements MainToolWindowContract.View {
 			}
 		}
 		updateTableVisibility();
+	}
+
+	@Override
+	public void showTerminalOutput() {
+		JTextArea textArea = new JTextArea(lastOutput_, 15, 0);
+		textArea.setEditable(false);
+		textArea.setLineWrap(true);
+		JBScrollPane scrollPane = new JBScrollPane(textArea);
+		scrollPane.setPreferredSize(new Dimension(toolWindowContent.getWidth(), (int) (toolWindowContent.getHeight() * 0.5f)));
+		JOptionPane.showMessageDialog(toolWindowContent, scrollPane, "Last command output", JOptionPane.PLAIN_MESSAGE);
 	}
 }

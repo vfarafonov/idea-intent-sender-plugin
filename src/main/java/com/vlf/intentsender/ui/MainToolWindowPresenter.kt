@@ -113,6 +113,11 @@ class MainToolWindowPresenter(
         }
     }
 
+    override fun onShowTerminalOutputClicked() {
+        // TODO(vfarafonov, 1/2/21): pass output from result of Send Command when it is moved to Presenter.
+        view.showTerminalOutput()
+    }
+
     private inner class RestartAdbWorker(
         private val adbHelper: AdbHelper
     ) : SwingWorker<Void?, Void?>() {

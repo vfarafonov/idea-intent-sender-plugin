@@ -25,6 +25,8 @@ interface MainToolWindowContract {
         fun showCommandsFromHistoryChooser(commandsHistory: List<Command>)
 
         fun updateUiFromCommand(command: Command)
+
+        fun showTerminalOutput()
     }
 
     interface Presenter {
@@ -44,5 +46,7 @@ interface MainToolWindowContract {
         fun onCommandSelectedFromHistory(command: Command)
 
         fun onSendFeedbackClicked()
+
+        fun onShowTerminalOutputClicked()
     }
 }
