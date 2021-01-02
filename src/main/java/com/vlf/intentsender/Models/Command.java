@@ -4,21 +4,20 @@ import java.util.List;
 
 import com.vlf.intentsender.adb.AdbHelper;
 
-/**
- * Created by vfarafonov on 08.09.2015.
- */
 public class Command {
-	private String action_;
-	private String data_;
-	private String category_;
-	private String mimeType_;
-	private String component_;
-	private List<IntentFlags> flags_;
-	private List<ExtraField> extras_;
-	private AdbHelper.CommandType type_;
-	private String user_;
+	private final String action_;
+	private final String data_;
+	private final String category_;
+	private final String mimeType_;
+	private final String component_;
+	private final List<IntentFlags> flags_;
+	private final List<ExtraField> extras_;
+	private final AdbHelper.CommandType type_;
+	private final String user_;
 
-	public Command(String action_, String data_, String category_, String mimeType_, String component_, String user_, List<ExtraField> extras_, List<IntentFlags> flags_, AdbHelper.CommandType type_) {
+	public Command(String action_, String data_, String category_, String mimeType_, String component_, String user_,
+				   List<ExtraField> extras_, List<IntentFlags> flags_, AdbHelper.CommandType type_
+	) {
 		this.action_ = action_;
 		this.data_ = data_;
 		this.category_ = category_;

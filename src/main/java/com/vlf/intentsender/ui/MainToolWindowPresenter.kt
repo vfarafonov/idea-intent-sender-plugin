@@ -12,13 +12,16 @@ import java.net.URI
 import javax.swing.SwingUtilities
 import javax.swing.SwingWorker
 
+private const val ERROR_UNKNOWN = "Unknown error"
+
 class MainToolWindowPresenter(
     private val view: MainToolWindowContract.View,
     private val project: Project
 ) : MainToolWindowContract.Presenter {
 
     private val devicesListener: IDeviceChangeListener = DevicesListener()
-    private var selectedDeviceSerial: String? = null
+    private var selectedDevice: IDevice? = null
+    private var lastCommandOutput: String? = null
 
     override fun onViewStart() {
         val adbLocation = AdbHelper.getAdbLocation()
@@ -74,19 +77,19 @@ class MainToolWindowPresenter(
         val devices = helper.devices
         if (devices.isEmpty()) {
             view.showNoDevicesConnected()
-            view.enableStartButtons(false) // toggleStartButtonsAvailability(false)
-            selectedDeviceSerial = null
+            view.enableStartButtons(false)
+            selectedDevice = null
         } else {
             // Find previously selected or use the first device
-            val selectedDevice = devices.firstOrNull { it.serialNumber == selectedDeviceSerial }
+            selectedDevice = devices.firstOrNull { it.serialNumber == selectedDevice?.serialNumber }
                 ?: devices[0]
             view.showAvailableDevices(devices, selectedDevice)
-            view.enableStartButtons(true) // toggleStartButtonsAvailability(true)
+            view.enableStartButtons(true)
         }
     }
 
     override fun onDeviceSelected(device: IDevice) {
-        selectedDeviceSerial = device.serialNumber
+        selectedDevice = device
     }
 
     override fun onShowHistoryClicked() {
@@ -114,8 +117,59 @@ class MainToolWindowPresenter(
     }
 
     override fun onShowTerminalOutputClicked() {
-        // TODO(vfarafonov, 1/2/21): pass output from result of Send Command when it is moved to Presenter.
-        view.showTerminalOutput()
+        view.showTerminalOutput(lastCommandOutput)
+    }
+
+    override fun onSendCommandClicked(command: Command) {
+        // Check if device is selected
+        if (selectedDevice == null) {
+            return
+        }
+        view.enableStartButtons(false)
+        SendAdbCommandWorker(command).execute()
+    }
+
+    private inner class SendAdbCommandWorker(
+        private val command: Command
+    ) : SwingWorker<String?, String?>() {
+        override fun doInBackground(): String? {
+            var error: String? = null
+            lastCommandOutput = null
+            try {
+                AdbHelper.getInstance().setOutputListener { output ->
+                    lastCommandOutput = output
+                }
+                error = AdbHelper.getInstance().sendCommand(command, selectedDevice)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            return error
+        }
+
+        override fun done() {
+            val error: String? = try {
+                get()
+            } catch (e: Exception) {
+                if (e.message != null) e.message else ERROR_UNKNOWN
+            }
+            if (error == null) {
+                handleCommandExecutionSuccess(command)
+            } else {
+                handleCommandExecutionError(error, command)
+            }
+            view.enableStartButtons(true)
+        }
+
+        private fun handleCommandExecutionError(error: String, command: Command) {
+            println("Sending command FAILED: $error")
+            view.showCommandExecutionError(error)
+        }
+
+        private fun handleCommandExecutionSuccess(command: Command) {
+            println("SUCCESS sending command")
+            HistoryUtils.saveCommand(command)
+            view.showCommandSentSuccessfully()
+        }
     }
 
     private inner class RestartAdbWorker(

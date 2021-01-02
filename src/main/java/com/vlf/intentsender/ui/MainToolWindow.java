@@ -1,15 +1,11 @@
 package com.vlf.intentsender.ui;
 
-import com.android.ddmlib.AdbCommandRejectedException;
 import com.android.ddmlib.IDevice;
-import com.android.ddmlib.ShellCommandUnresponsiveException;
-import com.android.ddmlib.TimeoutException;
 import com.intellij.facet.FacetManager;
 import com.intellij.ide.util.TreeJavaClassChooserDialog;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
-import com.intellij.openapi.ui.popup.BalloonBuilder;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
@@ -24,7 +20,6 @@ import com.vlf.intentsender.Models.ExtraField;
 import com.vlf.intentsender.Models.IntentFlags;
 import com.vlf.intentsender.adb.AdbHelper;
 import com.vlf.intentsender.ui.views.*;
-import com.vlf.intentsender.utils.HistoryUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.android.dom.manifest.Manifest;
 import org.jetbrains.android.facet.AndroidFacet;
@@ -41,16 +36,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class MainToolWindow implements MainToolWindowContract.View {
 	public static final String ISSUES_LINK = "https://github.com/WeezLabs/idea-intent-sender-plugin/issues";
 	public static final String EMPTY_OUTPUT = "No data to display";
-	private static final String UNKNOWN_ERROR = "Unknown error";
 	private static final int FADEOUT_TIME = 2000;
 	private static final String COMMAND_SUCCESS = "Command was successfully sent";
 	private final ExtrasTableModel tableModel_;
@@ -83,7 +75,6 @@ public class MainToolWindow implements MainToolWindowContract.View {
 	private AutoCompleteComboBox actionsComboBox;
 	private ToolWindow mainToolWindow;
 	private final Project project_;
-	private String lastOutput_ = EMPTY_OUTPUT;
 
 	private final MainToolWindowContract.Presenter presenter_;
 
@@ -105,24 +96,9 @@ public class MainToolWindow implements MainToolWindowContract.View {
 		});
 		locateAdbButton.addActionListener(__ -> presenter_.onLocateAdbClicked());
 		updateDevices.addActionListener(__ -> presenter_.onUpdateDevicesClicked());
-		sendIntentButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				sendCommand(AdbHelper.CommandType.BROADCAST);
-			}
-		});
-		startActivityButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				sendCommand(AdbHelper.CommandType.START_ACTIVITY);
-			}
-		});
-		startServiceButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				sendCommand(AdbHelper.CommandType.START_SERVICE);
-			}
-		});
+		sendIntentButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.BROADCAST));
+		startActivityButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START_ACTIVITY));
+		startServiceButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START_SERVICE));
 		pickClassButton.addActionListener(__ -> showClassPicker());
 		editFlags.addActionListener(__ -> showFlagsDialog());
 		addExtraButton.addActionListener(__ -> {
@@ -304,18 +280,8 @@ public class MainToolWindow implements MainToolWindowContract.View {
 		if (extrasTable.getCellEditor() != null) {
 			extrasTable.getCellEditor().stopCellEditing();
 		}
-		// Check if device is selected
-		final Object device = devicesComboBox.getSelectedItem();
-		if (device == null || !(device instanceof IDevice)) {
-			return;
-		}
 
 		// Prepare and send intent
-		String action = actionsComboBox.getText();
-		String data = dataTextField.getText();
-		String category = categoryTextField.getText();
-		String mime = mimeTextField.getText();
-		String component = componentTextField.getText();
 		String user = null;
 		if (addUserCheckBox.isSelected()) {
 			String text = userTextField.getText();
@@ -323,7 +289,6 @@ public class MainToolWindow implements MainToolWindowContract.View {
 				user = text;
 			}
 		}
-		List<ExtraField> extras = tableModel_.getValues();
 		List<IntentFlags> flags = new ArrayList<IntentFlags>();
 		for (Object flag : flagsList_.getSelectedValues()) {
 			if (flag instanceof IntentFlags) {
@@ -331,77 +296,43 @@ public class MainToolWindow implements MainToolWindowContract.View {
 			}
 		}
 		flags.remove(IntentFlags.NONE);
-		final Command command = new Command(action, data, category, mime, component, user, extras, flags, type);
-
-		enableStartButtons(false);
-		new SwingWorker<String, String>() {
-
-			@Override
-			protected String doInBackground() throws Exception {
-				String error = null;
-				lastOutput_ = "";
-				try {
-					AdbHelper.getInstance().setOutputListener(new AdbHelper.TerminalOutputListener() {
-						@Override
-						public void addOutput(String output) {
-							lastOutput_ = lastOutput_ + output;
-						}
-					});
-					error = AdbHelper.getInstance().sendCommand(command, (IDevice) device);
-				} catch (TimeoutException e) {
-					e.printStackTrace();
-				} catch (AdbCommandRejectedException e) {
-					e.printStackTrace();
-				} catch (ShellCommandUnresponsiveException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				if (lastOutput_.equals("")) {
-					lastOutput_ = EMPTY_OUTPUT;
-				}
-				return error;
-			}
-
-			@Override
-			protected void done() {
-				String error;
-				try {
-					error = get();
-				} catch (ExecutionException e) {
-					error = e.getMessage() != null ? e.getMessage() : UNKNOWN_ERROR;
-				} catch (InterruptedException e) {
-					error = e.getMessage() != null ? e.getMessage() : UNKNOWN_ERROR;
-				}
-				handleSendingResult(error, command);
-				enableStartButtons(true);
-			}
-		}.execute();
+		final Command command = new Command(
+				actionsComboBox.getText(),
+				dataTextField.getText(),
+				categoryTextField.getText(),
+				mimeTextField.getText(),
+				componentTextField.getText(),
+				user,
+				tableModel_.getValues(),
+				flags,
+				type
+		);
+		presenter_.onSendCommandClicked(command);
 	}
 
-	/**
-	 * Shows up appropriate popup
-	 *
-	 * @param error   Message to display or null if success
-	 * @param command Sent command
-	 */
-	private void handleSendingResult(String error, Command command) {
-		JLabel label = new JLabel(COMMAND_SUCCESS);
-		label.setForeground(Gray._50);
-		BalloonBuilder builder = JBPopupFactory.getInstance().createBalloonBuilder(label);
-		builder.setFadeoutTime(FADEOUT_TIME)
-				.setShowCallout(false);
-		if (error == null) {
-			System.out.println("SUCCESS sending command");
-			builder.setFillColor(new JBColor(10930928, 10930928));
-			HistoryUtils.saveCommand(command);
-		} else {
-			System.out.println("Sending command FAILED: " + error);
-			label.setText(error);
-			label.setForeground(Gray._0);
-			builder.setFillColor(JBColor.PINK);
-		}
-		builder.createBalloon().showInCenterOf(sendButtonsPanel);
+	@Override
+	public void showCommandSentSuccessfully() {
+		JBColor fillColor = new JBColor(10930928, 10930928);
+		showCommandExecutionResultBalloon(COMMAND_SUCCESS, Gray._50, fillColor);
+	}
+
+	@Override
+	public void showCommandExecutionError(@NotNull String errorText) {
+		showCommandExecutionResultBalloon(errorText, Gray._0, JBColor.PINK);
+	}
+
+	private void showCommandExecutionResultBalloon(
+			@NotNull String message,
+			@NotNull Color labelForeground,
+			@NotNull JBColor fillColor) {
+		JLabel label = new JLabel(message);
+		label.setForeground(labelForeground);
+		JBPopupFactory.getInstance().createBalloonBuilder(label)
+				.setFadeoutTime(FADEOUT_TIME)
+				.setShowCallout(false)
+				.setFillColor(fillColor)
+				.createBalloon()
+				.showInCenterOf(sendButtonsPanel);
 	}
 
 	@Override
@@ -514,8 +445,9 @@ public class MainToolWindow implements MainToolWindowContract.View {
 	}
 
 	@Override
-	public void showTerminalOutput() {
-		JTextArea textArea = new JTextArea(lastOutput_, 15, 0);
+	public void showTerminalOutput(@Nullable String lastCommandOutput) {
+		String displayText = lastCommandOutput != null ? lastCommandOutput : EMPTY_OUTPUT;
+		JTextArea textArea = new JTextArea(displayText, 15, 0);
 		textArea.setEditable(false);
 		textArea.setLineWrap(true);
 		JBScrollPane scrollPane = new JBScrollPane(textArea);

@@ -26,7 +26,11 @@ interface MainToolWindowContract {
 
         fun updateUiFromCommand(command: Command)
 
-        fun showTerminalOutput()
+        fun showTerminalOutput(lastCommandOutput: String?)
+
+        fun showCommandSentSuccessfully()
+
+        fun showCommandExecutionError(errorText: String)
     }
 
     interface Presenter {
@@ -48,5 +52,7 @@ interface MainToolWindowContract {
         fun onSendFeedbackClicked()
 
         fun onShowTerminalOutputClicked()
+
+        fun onSendCommandClicked(command: Command)
     }
 }
