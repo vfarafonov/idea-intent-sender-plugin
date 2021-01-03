@@ -1,6 +1,8 @@
 package com.vlf.intentsender.ui
 
 import com.android.ddmlib.IDevice
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiClass
 import com.vlf.intentsender.Models.Command
 import java.io.File
 
@@ -31,6 +33,12 @@ interface MainToolWindowContract {
         fun showCommandSentSuccessfully()
 
         fun showCommandExecutionError(errorText: String)
+
+        fun showClassPicker(project: Project)
+
+        fun setUser(user: String)
+
+        fun setComponent(fullComponentName: String?)
     }
 
     interface Presenter {
@@ -54,5 +62,9 @@ interface MainToolWindowContract {
         fun onShowTerminalOutputClicked()
 
         fun onSendCommandClicked(command: Command)
+
+        fun onPickComponentClicked()
+
+        fun onComponentSelected(selectedClass: PsiClass?)
     }
 }

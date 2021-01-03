@@ -1,30 +1,21 @@
 package com.vlf.intentsender.ui;
 
 import com.android.ddmlib.IDevice;
-import com.intellij.facet.FacetManager;
 import com.intellij.ide.util.TreeJavaClassChooserDialog;
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiClass;
 import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
-import com.intellij.util.xml.GenericAttributeValue;
 import com.vlf.intentsender.Models.Command;
 import com.vlf.intentsender.Models.ExtraField;
 import com.vlf.intentsender.Models.IntentFlags;
 import com.vlf.intentsender.adb.AdbHelper;
 import com.vlf.intentsender.ui.views.*;
 import org.apache.commons.lang3.ArrayUtils;
-import org.jetbrains.android.dom.manifest.Manifest;
-import org.jetbrains.android.facet.AndroidFacet;
-import org.jetbrains.android.facet.AndroidRootUtil;
-import org.jetbrains.android.util.AndroidUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -74,14 +65,12 @@ public class MainToolWindow implements MainToolWindowContract.View {
 	private JButton showTerminalOutputButton;
 	private AutoCompleteComboBox actionsComboBox;
 	private ToolWindow mainToolWindow;
-	private final Project project_;
 
 	private final MainToolWindowContract.Presenter presenter_;
 
 	@SuppressWarnings("unchecked")
 	public MainToolWindow(ToolWindow toolWindow, Project project) {
 		mainToolWindow = toolWindow;
-		project_ = project;
 
 		presenter_ = new MainToolWindowPresenter(this, project);
 
@@ -99,7 +88,7 @@ public class MainToolWindow implements MainToolWindowContract.View {
 		sendIntentButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.BROADCAST));
 		startActivityButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START_ACTIVITY));
 		startServiceButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START_SERVICE));
-		pickClassButton.addActionListener(__ -> showClassPicker());
+		pickClassButton.addActionListener(__ -> presenter_.onPickComponentClicked());
 		editFlags.addActionListener(__ -> showFlagsDialog());
 		addExtraButton.addActionListener(__ -> {
 			addExtraLine();
@@ -146,65 +135,25 @@ public class MainToolWindow implements MainToolWindowContract.View {
 		return toolWindowContent;
 	}
 
-	/**
-	 * Shows up class picker dialog from current project
-	 */
-	private void showClassPicker() {
-		TreeJavaClassChooserDialog dialog = new TreeJavaClassChooserDialog("Pick up component", project_);
+	@Override
+	public void showClassPicker(@NotNull Project project) {
+		TreeJavaClassChooserDialog dialog = new TreeJavaClassChooserDialog("Pick up component", project);
 		dialog.setModal(true);
 		dialog.show();
 
 		PsiClass selectedClass = dialog.getSelected();
 
-		updateComponent(selectedClass);
+		presenter_.onComponentSelected(selectedClass);
 	}
 
-	/**
-	 * Updates component field from selected class
-	 */
-	private void updateComponent(PsiClass selectedClass) {
-		String androidPackage;
-		String fullComponentName;
-		if (selectedClass != null) {
-			androidPackage = getAndroidPackage(selectedClass);
-			fullComponentName = selectedClass.getQualifiedName();
-			if (androidPackage != null && !androidPackage.equals("") && fullComponentName != null) {
-				int packageIndex = fullComponentName.indexOf(androidPackage);
-				if (packageIndex != -1) {
-					StringBuilder builder = new StringBuilder(fullComponentName);
-					fullComponentName = builder.insert(packageIndex + androidPackage.length(), "/").toString();
-				}
-				userTextField.setText(androidPackage);
-			}
-			componentTextField.setText(fullComponentName);
-		}
+	@Override
+	public void setUser(@NotNull String user) {
+		userTextField.setText(user);
 	}
 
-	/**
-	 * Gets android app package from selected class
-	 *
-	 * @return Package or null if package cannot be parsed from sources
-	 */
-	private String getAndroidPackage(@NotNull PsiClass selectedClass) {
-		Module module = ProjectRootManager.getInstance(selectedClass.getProject()).getFileIndex().getModuleForFile(selectedClass.getContainingFile().getVirtualFile());
-		if (module == null) {
-			return null;
-		}
-		FacetManager facetManager = FacetManager.getInstance(module);
-		AndroidFacet facet = facetManager.getFacetByType(AndroidFacet.ID);
-		if (facet == null) {
-			return null;
-		}
-		VirtualFile manifestFile = AndroidRootUtil.getPrimaryManifestFile(facet);
-		if (manifestFile == null) {
-			return null;
-		}
-		Manifest manifest = AndroidUtils.loadDomElement(facet.getModule(), manifestFile, Manifest.class);
-		if (manifest == null) {
-			return null;
-		}
-		GenericAttributeValue<String> rootPackage = manifest.getPackage();
-		return rootPackage.getStringValue();
+	@Override
+	public void setComponent(@Nullable String fullComponentName) {
+		componentTextField.setText(fullComponentName);
 	}
 
 	/**
@@ -275,7 +224,6 @@ public class MainToolWindow implements MainToolWindowContract.View {
 	/**
 	 * Prepares intent parameters and sends command in worker thread
 	 */
-	@SuppressWarnings("unchecked")
 	private void sendCommand(AdbHelper.CommandType type) {
 		if (extrasTable.getCellEditor() != null) {
 			extrasTable.getCellEditor().stopCellEditing();

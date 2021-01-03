@@ -2,10 +2,17 @@ package com.vlf.intentsender.ui
 
 import com.android.ddmlib.AndroidDebugBridge.IDeviceChangeListener
 import com.android.ddmlib.IDevice
+import com.intellij.facet.FacetManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.psi.PsiClass
 import com.vlf.intentsender.Models.Command
 import com.vlf.intentsender.adb.AdbHelper
 import com.vlf.intentsender.utils.HistoryUtils
+import org.jetbrains.android.dom.manifest.Manifest
+import org.jetbrains.android.facet.AndroidFacet
+import org.jetbrains.android.facet.AndroidRootUtil
+import org.jetbrains.android.util.AndroidUtils
 import java.awt.Desktop
 import java.io.File
 import java.net.URI
@@ -127,6 +134,48 @@ class MainToolWindowPresenter(
         }
         view.enableStartButtons(false)
         SendAdbCommandWorker(command).execute()
+    }
+
+    override fun onPickComponentClicked() {
+        view.showClassPicker(project)
+    }
+
+    override fun onComponentSelected(selectedClass: PsiClass?) {
+        if (selectedClass != null) {
+            val androidPackage = getAndroidPackage(selectedClass)
+            var fullComponentName = selectedClass.qualifiedName
+            if (!androidPackage.isNullOrEmpty()
+                && fullComponentName != null
+            ) {
+                val packageIndex = fullComponentName.indexOf(androidPackage)
+                if (packageIndex != -1) {
+                    val builder = StringBuilder(fullComponentName)
+                    fullComponentName = builder.insert(packageIndex + androidPackage.length, "/").toString()
+                }
+                view.setUser(androidPackage)
+            }
+            view.setComponent(fullComponentName)
+        }
+    }
+
+    /**
+     * Gets android app package from selected class
+     *
+     * @return Package or null if package cannot be parsed from sources
+     */
+    private fun getAndroidPackage(selectedClass: PsiClass): String? {
+        val projectRootManager = ProjectRootManager.getInstance(selectedClass.project)
+        val selectedClassVirtualFile = selectedClass.containingFile.virtualFile
+        val module = projectRootManager.fileIndex.getModuleForFile(selectedClassVirtualFile)
+            ?: return null
+        val facetManager = FacetManager.getInstance(module)
+        val facet = facetManager.getFacetByType(AndroidFacet.ID) ?: return null
+        val manifestFile = AndroidRootUtil.getPrimaryManifestFile(facet) ?: return null
+        val manifest = AndroidUtils.loadDomElement(facet.module, manifestFile, Manifest::class.java)
+            ?: return null
+        val rootPackage = manifest.getPackage()
+        // TODO(vfarafonov, 1/3/21): use application id instead of package from module's manifest.
+        return rootPackage.stringValue
     }
 
     private inner class SendAdbCommandWorker(
