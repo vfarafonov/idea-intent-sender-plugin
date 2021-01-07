@@ -7,6 +7,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi.PsiClass
 import com.vlf.intentsender.Models.Command
+import com.vlf.intentsender.Models.ExtraField
+import com.vlf.intentsender.Models.IntentFlags
 import com.vlf.intentsender.adb.AdbHelper
 import com.vlf.intentsender.utils.HistoryUtils
 import org.jetbrains.android.dom.manifest.Manifest
@@ -29,6 +31,7 @@ class MainToolWindowPresenter(
     private val devicesListener: IDeviceChangeListener = DevicesListener()
     private var selectedDevice: IDevice? = null
     private var lastCommandOutput: String? = null
+    var selectedFlags = listOf(IntentFlags.NONE)
 
     override fun onViewStart() {
         val adbLocation = AdbHelper.getAdbLocation()
@@ -41,6 +44,7 @@ class MainToolWindowPresenter(
 
             startAdbAndSwitchUI(adbLocation)
         }
+        view.displaySelectedFlags(selectedFlags)
     }
 
     override fun onAdbLocationPicked(adbFile: File) {
@@ -105,6 +109,7 @@ class MainToolWindowPresenter(
     }
 
     override fun onCommandSelectedFromHistory(command: Command) {
+        selectedFlags = command.flags
         view.updateUiFromCommand(command)
     }
 
@@ -127,12 +132,23 @@ class MainToolWindowPresenter(
         view.showTerminalOutput(lastCommandOutput)
     }
 
-    override fun onSendCommandClicked(command: Command) {
+    override fun onSendCommandClicked(
+        action: String,
+        data: String,
+        category: String,
+        mimeType: String,
+        component: String,
+        user: String?,
+        extras: List<ExtraField>,
+        type: AdbHelper.CommandType,
+    ) {
         // Check if device is selected
         if (selectedDevice == null) {
             return
         }
         view.enableStartButtons(false)
+
+        val command = Command(action, data, category, mimeType, component, user, extras, selectedFlags, type)
         SendAdbCommandWorker(command).execute()
     }
 
@@ -176,6 +192,28 @@ class MainToolWindowPresenter(
         val rootPackage = manifest.getPackage()
         // TODO(vfarafonov, 1/3/21): use application id instead of package from module's manifest.
         return rootPackage.stringValue
+    }
+
+    override fun onFlagsClicked() {
+        view.showFlagsSelection(listOf(*IntentFlags.values()), selectedFlags)
+    }
+
+    override fun onFlagsSelected(newFlags: List<IntentFlags>) {
+        if (newFlags.isEmpty()) {
+            selectedFlags = listOf(IntentFlags.NONE)
+        }
+
+        val flags = mutableListOf<IntentFlags>()
+        flags.addAll(newFlags)
+        // Remove NONE if it was added
+        if (flags.size > 1
+            && flags.contains(IntentFlags.NONE)
+        ) {
+            flags.remove(IntentFlags.NONE)
+        }
+        selectedFlags = flags
+
+        view.displaySelectedFlags(selectedFlags)
     }
 
     private inner class SendAdbCommandWorker(

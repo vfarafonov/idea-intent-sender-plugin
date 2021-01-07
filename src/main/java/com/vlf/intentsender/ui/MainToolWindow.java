@@ -23,12 +23,8 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableColumn;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MainToolWindow implements MainToolWindowContract.View {
@@ -37,7 +33,6 @@ public class MainToolWindow implements MainToolWindowContract.View {
 	private static final int FADEOUT_TIME = 2000;
 	private static final String COMMAND_SUCCESS = "Command was successfully sent";
 	private final ExtrasTableModel tableModel_;
-	private final JBList flagsList_ = new JBList(Arrays.asList(IntentFlags.values()));
 	private JPanel toolWindowContent;
 	private JTable extrasTable;
 	private JButton addExtraButton;
@@ -74,7 +69,6 @@ public class MainToolWindow implements MainToolWindowContract.View {
 
 		presenter_ = new MainToolWindowPresenter(this, project);
 
-		flagsList_.setSelectedIndex(0);
 		// Initialize ComboBox
 		devicesComboBox.setRenderer(new DevicesListRenderer());
 		devicesComboBox.setMaximumRowCount(10);
@@ -89,7 +83,7 @@ public class MainToolWindow implements MainToolWindowContract.View {
 		startActivityButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START_ACTIVITY));
 		startServiceButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.START_SERVICE));
 		pickClassButton.addActionListener(__ -> presenter_.onPickComponentClicked());
-		editFlags.addActionListener(__ -> showFlagsDialog());
+		editFlags.addActionListener(__ -> presenter_.onFlagsClicked());
 		addExtraButton.addActionListener(__ -> {
 			addExtraLine();
 			updateTableVisibility();
@@ -104,29 +98,15 @@ public class MainToolWindow implements MainToolWindowContract.View {
 		extrasTable.setRowHeight((int) (extrasTable.getRowHeight() * 1.3));
 		TableColumn removeColumn = extrasTable.getColumnModel().getColumn(ExtrasTableModel.COLUMNS_COUNT - 1);
 		removeColumn.setCellRenderer(new ExtrasDeleteButtonRenderer());
-		removeColumn.setCellEditor(new ExtrasDeleteButtonEditor(new ExtrasDeleteButtonEditor.RemoveRowListener() {
-			@Override
-			public void onRowRemoved(int rowIndex) {
-				tableModel_.removeRow(rowIndex);
-				updateTableVisibility();
-			}
+		removeColumn.setCellEditor(new ExtrasDeleteButtonEditor(rowIndex -> {
+			tableModel_.removeRow(rowIndex);
+			updateTableVisibility();
 		}));
 
 		sendFeedbackButton.setBorderPainted(false);
 		sendFeedbackButton.setOpaque(false);
-		sendFeedbackButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				presenter_.onSendFeedbackClicked();
-			}
-		});
-		updateFlagsTextField();
-		showTerminalOutputButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				presenter_.onShowTerminalOutputClicked();
-			}
-		});
+		sendFeedbackButton.addActionListener(__ -> presenter_.onSendFeedbackClicked());
+		showTerminalOutputButton.addActionListener(__ -> presenter_.onShowTerminalOutputClicked());
 
 		presenter_.onViewStart();
 	}
@@ -156,28 +136,36 @@ public class MainToolWindow implements MainToolWindowContract.View {
 		componentTextField.setText(fullComponentName);
 	}
 
-	/**
-	 * Displays dialog with intent flags picking up flow
-	 */
-	private void showFlagsDialog() {
-		int[] oldIndices = flagsList_.getSelectedIndices();
+	@Override
+	public void showFlagsSelection(
+			@NotNull List<? extends IntentFlags> allFlags,
+			@NotNull List<? extends IntentFlags> selectedFlags)
+	{
+		JBList<IntentFlags> flagsList = new JBList<>(allFlags);
+		int[] selectedIndices = selectedFlags.stream()
+				.mapToInt(allFlags::indexOf)
+				.toArray();
+		flagsList.setSelectedIndices(selectedIndices);
+
 		String[] buttons = {"OK", "Cancel"};
-		int result = JOptionPane.showOptionDialog(toolWindowContent, flagsList_, "Select flags", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, buttons, buttons[0]);
-		if (result != 0) {
-			flagsList_.setSelectedIndices(oldIndices);
-		} else {
-			if (flagsList_.getSelectedIndices().length > 1 && flagsList_.isSelectedIndex(0)) {
-				flagsList_.removeSelectionInterval(0, 0);
-			}
-			updateFlagsTextField();
+		int result = JOptionPane.showOptionDialog(
+				toolWindowContent,
+				flagsList,
+				"Select flags",
+				JOptionPane.YES_NO_CANCEL_OPTION,
+				JOptionPane.PLAIN_MESSAGE,
+				null,
+				buttons,
+				buttons[0]
+		);
+		if (result == JOptionPane.OK_OPTION) {
+			presenter_.onFlagsSelected(flagsList.getSelectedValuesList());
 		}
 	}
 
-	/**
-	 * Updates flags text
-	 */
-	private void updateFlagsTextField() {
-		flagsTextField.setText(Arrays.toString(flagsList_.getSelectedValues()));
+	@Override
+	public void displaySelectedFlags(@NotNull List<? extends IntentFlags> selectedFlags) {
+		flagsTextField.setText(selectedFlags.toString());
 	}
 
 	@Override
@@ -237,14 +225,7 @@ public class MainToolWindow implements MainToolWindowContract.View {
 				user = text;
 			}
 		}
-		List<IntentFlags> flags = new ArrayList<IntentFlags>();
-		for (Object flag : flagsList_.getSelectedValues()) {
-			if (flag instanceof IntentFlags) {
-				flags.add((IntentFlags) flag);
-			}
-		}
-		flags.remove(IntentFlags.NONE);
-		final Command command = new Command(
+		presenter_.onSendCommandClicked(
 				actionsComboBox.getText(),
 				dataTextField.getText(),
 				categoryTextField.getText(),
@@ -252,10 +233,8 @@ public class MainToolWindow implements MainToolWindowContract.View {
 				componentTextField.getText(),
 				user,
 				tableModel_.getValues(),
-				flags,
 				type
 		);
-		presenter_.onSendCommandClicked(command);
 	}
 
 	@Override
@@ -372,16 +351,7 @@ public class MainToolWindow implements MainToolWindowContract.View {
 		mimeTextField.setText(command.getMimeType());
 		componentTextField.setText(command.getComponent());
 		userTextField.setText(command.getUser());
-		flagsList_.removeSelectionInterval(0, flagsList_.getItemsCount());
-		List<IntentFlags> flags = command.getFlags();
-		if (flags != null && flags.size() > 0) {
-			for (IntentFlags flag : command.getFlags()) {
-				flagsList_.setSelectedValue(flag, false);
-			}
-		} else {
-			flagsList_.setSelectedIndex(0);
-		}
-		updateFlagsTextField();
+		displaySelectedFlags(command.getFlags());
 		tableModel_.removeAllRows();
 		List<ExtraField> extras = command.getExtras();
 		if (extras != null && extras.size() > 0) {

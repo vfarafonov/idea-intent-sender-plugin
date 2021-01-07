@@ -4,6 +4,9 @@ import com.android.ddmlib.IDevice
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
 import com.vlf.intentsender.Models.Command
+import com.vlf.intentsender.Models.ExtraField
+import com.vlf.intentsender.Models.IntentFlags
+import com.vlf.intentsender.adb.AdbHelper
 import java.io.File
 
 interface MainToolWindowContract {
@@ -39,6 +42,10 @@ interface MainToolWindowContract {
         fun setUser(user: String)
 
         fun setComponent(fullComponentName: String?)
+
+        fun showFlagsSelection(allFlags: List<IntentFlags>, selectedFlags: List<IntentFlags>)
+
+        fun displaySelectedFlags(selectedFlags: List<IntentFlags>)
     }
 
     interface Presenter {
@@ -61,10 +68,23 @@ interface MainToolWindowContract {
 
         fun onShowTerminalOutputClicked()
 
-        fun onSendCommandClicked(command: Command)
+        fun onSendCommandClicked(
+            action: String,
+            data: String,
+            category: String,
+            mimeType: String,
+            component: String,
+            user: String?,
+            extras: List<ExtraField>,
+            type: AdbHelper.CommandType,
+        )
 
         fun onPickComponentClicked()
 
         fun onComponentSelected(selectedClass: PsiClass?)
+
+        fun onFlagsClicked()
+
+        fun onFlagsSelected(newFlags: List<IntentFlags>)
     }
 }
