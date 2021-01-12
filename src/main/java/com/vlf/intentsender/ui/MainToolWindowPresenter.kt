@@ -18,7 +18,6 @@ import org.jetbrains.android.util.AndroidUtils
 import java.awt.Desktop
 import java.io.File
 import java.net.URI
-import javax.swing.SwingUtilities
 import javax.swing.SwingWorker
 
 private const val ERROR_UNKNOWN = "Unknown error"
@@ -67,7 +66,7 @@ class MainToolWindowPresenter(
                 view.setLocateAdbButtonVisible(false)
                 view.setIntentCreationLayoutVisible(true)
 
-                onUpdateDevicesClicked()
+                updateDevicesList()
             }
         } else {
             view.setLocateAdbButtonVisible(false)
@@ -83,6 +82,10 @@ class MainToolWindowPresenter(
      * Updates devices list keeping selected device if it is still connected
      */
     override fun onUpdateDevicesClicked() {
+        updateDevicesList()
+    }
+
+    private fun updateDevicesList() {
         val helper = AdbHelper.getInstance()
 
         val devices = helper.devices
@@ -274,22 +277,22 @@ class MainToolWindowPresenter(
             view.setLocateAdbButtonVisible(false)
             view.setIntentCreationLayoutVisible(true)
 
-            onUpdateDevicesClicked()
+            updateDevicesList()
         }
     }
 
     private inner class DevicesListener : IDeviceChangeListener {
 
         override fun deviceConnected(iDevice: IDevice) {
-            SwingUtilities.invokeLater { onUpdateDevicesClicked() }
+            updateDevicesList()
         }
 
         override fun deviceDisconnected(iDevice: IDevice) {
-            SwingUtilities.invokeLater { onUpdateDevicesClicked() }
+            updateDevicesList()
         }
 
         override fun deviceChanged(iDevice: IDevice, i: Int) {
-            SwingUtilities.invokeLater { onUpdateDevicesClicked() }
+            updateDevicesList()
         }
     }
 }
