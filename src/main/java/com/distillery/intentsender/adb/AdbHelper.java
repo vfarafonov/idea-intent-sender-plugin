@@ -1,12 +1,12 @@
-package com.vlf.intentsender.adb;
+package com.distillery.intentsender.adb;
 
 import com.android.ddmlib.*;
 import com.android.tools.idea.sdk.AndroidSdks;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
-import com.vlf.intentsender.Models.Command;
-import com.vlf.intentsender.Models.ExtraField;
-import com.vlf.intentsender.Models.IntentFlags;
+import com.distillery.intentsender.Models.Command;
+import com.distillery.intentsender.Models.ExtraField;
+import com.distillery.intentsender.Models.IntentFlags;
 import org.jetbrains.android.sdk.AndroidSdkUtils;
 
 import javax.annotation.Nullable;

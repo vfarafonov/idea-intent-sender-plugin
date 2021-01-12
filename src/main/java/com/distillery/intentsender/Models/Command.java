@@ -1,8 +1,8 @@
-package com.vlf.intentsender.Models;
+package com.distillery.intentsender.Models;
 
 import java.util.List;
 
-import com.vlf.intentsender.adb.AdbHelper;
+import com.distillery.intentsender.adb.AdbHelper;
 
 public class Command {
 	private final String action_;

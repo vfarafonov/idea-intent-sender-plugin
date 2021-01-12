@@ -1,4 +1,4 @@
-package com.vlf.intentsender.diff;
+package com.distillery.intentsender.diff;
 
 import java.util.Collection;
 import java.util.HashSet;

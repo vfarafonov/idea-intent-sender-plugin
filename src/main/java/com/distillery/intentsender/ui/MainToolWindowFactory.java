@@ -1,4 +1,4 @@
-package com.vlf.intentsender.ui;
+package com.distillery.intentsender.ui;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;

@@ -1,4 +1,4 @@
-package com.vlf.intentsender.utils;
+package com.distillery.intentsender.utils;
 
 import java.util.Arrays;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.vlf.intentsender.ui.views;
+package com.distillery.intentsender.ui.views;
 
 import com.android.ddmlib.IDevice;
 import com.intellij.ui.ListCellRendererWrapper;

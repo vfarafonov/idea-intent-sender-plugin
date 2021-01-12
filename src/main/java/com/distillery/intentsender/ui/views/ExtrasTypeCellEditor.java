@@ -1,4 +1,4 @@
-package com.vlf.intentsender.ui.views;
+package com.distillery.intentsender.ui.views;
 
 import com.intellij.openapi.ui.ComboBox;
 
@@ -10,7 +10,7 @@ import javax.swing.AbstractCellEditor;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
 
-import com.vlf.intentsender.Models.ExtraField;
+import com.distillery.intentsender.Models.ExtraField;
 
 /**
  * Created by vfarafonov on 31.08.2015.

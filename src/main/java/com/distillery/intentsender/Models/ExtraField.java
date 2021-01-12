@@ -1,4 +1,4 @@
-package com.vlf.intentsender.Models;
+package com.distillery.intentsender.Models;
 
 /**
  * Created by vfarafonov on 31.08.2015.

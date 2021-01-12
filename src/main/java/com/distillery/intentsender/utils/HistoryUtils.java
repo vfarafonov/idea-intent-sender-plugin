@@ -1,4 +1,4 @@
-package com.vlf.intentsender.utils;
+package com.distillery.intentsender.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.vlf.intentsender.Models.Command;
+import com.distillery.intentsender.Models.Command;
 
 /**
  * Created by vfarafonov on 08.09.2015.

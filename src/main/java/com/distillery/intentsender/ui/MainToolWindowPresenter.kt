@@ -1,4 +1,4 @@
-package com.vlf.intentsender.ui
+package com.distillery.intentsender.ui
 
 import com.android.ddmlib.AndroidDebugBridge.IDeviceChangeListener
 import com.android.ddmlib.IDevice
@@ -6,11 +6,11 @@ import com.intellij.facet.FacetManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi.PsiClass
-import com.vlf.intentsender.Models.Command
-import com.vlf.intentsender.Models.ExtraField
-import com.vlf.intentsender.Models.IntentFlags
-import com.vlf.intentsender.adb.AdbHelper
-import com.vlf.intentsender.utils.HistoryUtils
+import com.distillery.intentsender.Models.Command
+import com.distillery.intentsender.Models.ExtraField
+import com.distillery.intentsender.Models.IntentFlags
+import com.distillery.intentsender.adb.AdbHelper
+import com.distillery.intentsender.utils.HistoryUtils
 import org.jetbrains.android.dom.manifest.Manifest
 import org.jetbrains.android.facet.AndroidFacet
 import org.jetbrains.android.facet.AndroidRootUtil

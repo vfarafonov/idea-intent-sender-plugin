@@ -1,11 +1,11 @@
-package com.vlf.intentsender.ui.views;
+package com.distillery.intentsender.ui.views;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import com.vlf.intentsender.Models.ExtraField;
+import com.distillery.intentsender.Models.ExtraField;
 
 /**
  * Created by vfarafonov on 31.08.2015.

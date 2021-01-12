@@ -1,6 +1,6 @@
-package com.vlf.intentsender.Models;
+package com.distillery.intentsender.Models;
 
-import com.vlf.intentsender.diff.Searchable;
+import com.distillery.intentsender.diff.Searchable;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
