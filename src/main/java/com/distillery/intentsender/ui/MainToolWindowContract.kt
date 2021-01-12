@@ -3,9 +3,9 @@ package com.distillery.intentsender.ui
 import com.android.ddmlib.IDevice
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
-import com.distillery.intentsender.Models.Command
-import com.distillery.intentsender.Models.ExtraField
-import com.distillery.intentsender.Models.IntentFlags
+import com.distillery.intentsender.models.Command
+import com.distillery.intentsender.models.ExtraField
+import com.distillery.intentsender.models.IntentFlags
 import com.distillery.intentsender.adb.AdbHelper
 import java.io.File
 

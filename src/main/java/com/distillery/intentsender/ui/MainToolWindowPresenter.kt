@@ -6,9 +6,9 @@ import com.intellij.facet.FacetManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi.PsiClass
-import com.distillery.intentsender.Models.Command
-import com.distillery.intentsender.Models.ExtraField
-import com.distillery.intentsender.Models.IntentFlags
+import com.distillery.intentsender.models.Command
+import com.distillery.intentsender.models.ExtraField
+import com.distillery.intentsender.models.IntentFlags
 import com.distillery.intentsender.adb.AdbHelper
 import com.distillery.intentsender.utils.HistoryUtils
 import org.jetbrains.android.dom.manifest.Manifest
@@ -151,7 +151,17 @@ class MainToolWindowPresenter(
         }
         view.enableStartButtons(false)
 
-        val command = Command(action, data, category, mimeType, component, user, extras, selectedFlags, type)
+        val command = Command(
+            action,
+            data,
+            category,
+            mimeType,
+            component,
+            user,
+            extras,
+            selectedFlags,
+            type
+        )
         SendAdbCommandWorker(command).execute()
     }
 

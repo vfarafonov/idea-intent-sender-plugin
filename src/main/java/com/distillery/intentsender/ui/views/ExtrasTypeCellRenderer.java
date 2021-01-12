@@ -5,7 +5,7 @@ import java.awt.Component;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import com.distillery.intentsender.Models.ExtraField;
+import com.distillery.intentsender.models.ExtraField;
 
 /**
  * Created by vfarafonov on 31.08.2015.

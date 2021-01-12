@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.distillery.intentsender.Models.Command;
+import com.distillery.intentsender.models.Command;
 
 /**
  * Created by vfarafonov on 08.09.2015.

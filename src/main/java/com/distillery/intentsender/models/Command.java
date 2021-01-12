@@ -1,4 +1,4 @@
-package com.distillery.intentsender.Models;
+package com.distillery.intentsender.models;
 
 import java.util.List;
 
