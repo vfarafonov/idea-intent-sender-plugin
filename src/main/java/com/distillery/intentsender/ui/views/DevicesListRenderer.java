@@ -1,4 +1,4 @@
-package intentsender.ui;
+package com.distillery.intentsender.ui.views;
 
 import com.android.ddmlib.IDevice;
 import com.intellij.ui.ListCellRendererWrapper;
@@ -8,7 +8,7 @@ import javax.swing.JList;
 /**
  * Created by vfarafonov on 26.08.2015.
  */
-class DevicesListRenderer extends ListCellRendererWrapper {
+public class DevicesListRenderer extends ListCellRendererWrapper {
 	@Override
 	public void customize(JList list, Object value, int index, boolean selected, boolean hasFocus) {
 		if (value instanceof IDevice) {

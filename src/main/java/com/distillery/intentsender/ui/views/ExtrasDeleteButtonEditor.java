@@ -1,4 +1,4 @@
-package intentsender.ui;
+package com.distillery.intentsender.ui.views;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -12,7 +12,7 @@ import javax.swing.JTable;
 /**
  * Created by vfarafonov on 31.08.2015.
  */
-class ExtrasDeleteButtonEditor extends DefaultCellEditor {
+public class ExtrasDeleteButtonEditor extends DefaultCellEditor {
 
 
 	private final JButton button_;

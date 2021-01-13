@@ -1,4 +1,4 @@
-package intentsender.diff;
+package com.distillery.intentsender.diff;
 
 import java.util.List;
 

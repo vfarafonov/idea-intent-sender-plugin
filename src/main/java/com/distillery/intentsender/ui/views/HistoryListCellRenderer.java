@@ -1,16 +1,16 @@
-package intentsender.ui;
+package com.distillery.intentsender.ui.views;
 
 import java.awt.Component;
 
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 
-import intentsender.Models.Command;
+import com.distillery.intentsender.models.Command;
 
 /**
  * Created by vfarafonov on 08.09.2015.
  */
-class HistoryListCellRenderer extends DefaultListCellRenderer {
+public class HistoryListCellRenderer extends DefaultListCellRenderer {
 	private static final int MAX_SUBJECT_LENGTH = 30;
 
 	@Override

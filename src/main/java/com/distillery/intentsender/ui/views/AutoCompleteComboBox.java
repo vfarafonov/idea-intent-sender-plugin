@@ -1,4 +1,4 @@
-package intentsender.ui;
+package com.distillery.intentsender.ui.views;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.PlainDocument;
 
-import intentsender.utils.IntentActionsHelper;
+import com.distillery.intentsender.utils.IntentActionsHelper;
 
 /**
  * Created by vfarafonov on 09.03.2016.

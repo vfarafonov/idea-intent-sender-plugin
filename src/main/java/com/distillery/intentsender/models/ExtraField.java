@@ -1,4 +1,4 @@
-package intentsender.Models;
+package com.distillery.intentsender.models;
 
 /**
  * Created by vfarafonov on 31.08.2015.

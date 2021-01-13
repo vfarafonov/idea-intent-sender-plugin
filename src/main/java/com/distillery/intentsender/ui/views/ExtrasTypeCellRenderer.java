@@ -1,16 +1,16 @@
-package intentsender.ui;
+package com.distillery.intentsender.ui.views;
 
 import java.awt.Component;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import intentsender.Models.ExtraField;
+import com.distillery.intentsender.models.ExtraField;
 
 /**
  * Created by vfarafonov on 31.08.2015.
  */
-class ExtrasTypeCellRenderer extends DefaultTableCellRenderer {
+public class ExtrasTypeCellRenderer extends DefaultTableCellRenderer {
 
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {

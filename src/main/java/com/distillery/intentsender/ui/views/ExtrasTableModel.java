@@ -1,16 +1,16 @@
-package intentsender.ui;
+package com.distillery.intentsender.ui.views;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import intentsender.Models.ExtraField;
+import com.distillery.intentsender.models.ExtraField;
 
 /**
  * Created by vfarafonov on 31.08.2015.
  */
-class ExtrasTableModel extends AbstractTableModel {
+public class ExtrasTableModel extends AbstractTableModel {
 	public final static int COLUMNS_COUNT = 4;
 	private final static String[] COLUMN_NAMES = new String[] {"Type", "Key", "Value", ""};
 
