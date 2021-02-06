@@ -334,7 +334,7 @@ public class MainToolWindow implements MainToolWindowContract.View {
 	}
 
 	@Override
-	public void showCommandsFromHistoryChooser(@NotNull List<? extends Command> commandsHistory) {
+	public void showCommandsFromHistoryChooser(@NotNull List<Command> commandsHistory) {
 		JBList commandsList = new JBList(commandsHistory);
 		commandsList.setCellRenderer(new HistoryListCellRenderer());
 		commandsList.setEmptyText("No data to display");

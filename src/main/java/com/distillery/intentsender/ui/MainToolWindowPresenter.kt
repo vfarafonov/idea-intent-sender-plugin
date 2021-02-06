@@ -12,7 +12,7 @@ import com.distillery.intentsender.models.IntentFlags
 import com.distillery.intentsender.adb.AdbHelper
 import com.distillery.intentsender.domain.command.CommandParamsValidator
 import com.distillery.intentsender.domain.command.CommandParamsValidator.*
-import com.distillery.intentsender.utils.HistoryUtils
+import com.distillery.intentsender.data.history.HistoryUtils
 import com.distillery.intentsender.utils.exhaustive
 import org.jetbrains.android.dom.manifest.Manifest
 import org.jetbrains.android.facet.AndroidFacet
