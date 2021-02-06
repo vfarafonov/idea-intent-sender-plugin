@@ -95,7 +95,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <grid id="29c0a" layout-manager="GridLayoutManager" row-count="10" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+              <grid id="29c0a" layout-manager="GridLayoutManager" row-count="11" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints/>
                 <properties/>
@@ -103,7 +103,7 @@
                 <children>
                   <component id="65819" class="javax.swing.JButton" binding="addExtraButton" default-binding="true">
                     <constraints>
-                      <grid row="9" column="0" row-span="1" col-span="3" vsize-policy="4" hsize-policy="2" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
+                      <grid row="10" column="0" row-span="1" col-span="3" vsize-policy="4" hsize-policy="2" anchor="1" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
                       <text value="Add extra"/>
@@ -175,9 +175,9 @@
                       <text value=""/>
                     </properties>
                   </component>
-                  <component id="aa642" class="javax.swing.JLabel">
+                  <component id="aa642" class="javax.swing.JLabel" binding="componentLabel">
                     <constraints>
-                      <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                      <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="0" fill="1" indent="1" use-parent-layout="false"/>
                     </constraints>
                     <properties>
                       <horizontalAlignment value="0"/>
@@ -186,7 +186,7 @@
                   </component>
                   <component id="2b75e" class="javax.swing.JLabel">
                     <constraints>
-                      <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                      <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
                       <horizontalAlignment value="0"/>
@@ -195,7 +195,7 @@
                   </component>
                   <scrollpane id="e7c4d" binding="extrasRootLayout">
                     <constraints>
-                      <grid row="8" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="7" anchor="1" fill="1" indent="1" use-parent-layout="false"/>
+                      <grid row="9" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="7" anchor="1" fill="1" indent="1" use-parent-layout="false"/>
                     </constraints>
                     <properties>
                       <visible value="false"/>
@@ -214,7 +214,7 @@
                   <grid id="e959e" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
-                      <grid row="7" column="1" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                      <grid row="8" column="1" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties/>
                     <border type="none"/>
@@ -244,7 +244,7 @@
                   <grid id="64d6" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
-                      <grid row="5" column="1" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                      <grid row="6" column="1" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties/>
                     <border type="none"/>
@@ -272,7 +272,7 @@
                   </grid>
                   <component id="d2f38" class="javax.swing.JTextField" binding="userTextField">
                     <constraints>
-                      <grid row="6" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
+                      <grid row="7" column="1" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
                         <preferred-size width="297" height="24"/>
                       </grid>
                     </constraints>
@@ -283,7 +283,7 @@
                   <grid id="e71b1" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
                     <margin top="0" left="0" bottom="0" right="0"/>
                     <constraints>
-                      <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                      <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties/>
                     <border type="none"/>
@@ -302,12 +302,12 @@
                       </component>
                       <component id="eec42" class="javax.swing.JLabel">
                         <constraints>
-                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                         </constraints>
                         <properties>
                           <horizontalAlignment value="2"/>
                           <horizontalTextPosition value="2"/>
-                          <icon value="general/error.png"/>
+                          <icon value="general/warning.png"/>
                           <text value=""/>
                           <toolTipText value="(Experimental) Useful when component is not exported"/>
                         </properties>
@@ -350,6 +350,23 @@
                     <properties>
                       <maximumRowCount value="5"/>
                     </properties>
+                  </component>
+                  <component id="52f31" class="javax.swing.JLabel" binding="applicationIdLabel">
+                    <constraints>
+                      <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="0" fill="0" indent="1" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <horizontalAlignment value="0"/>
+                      <text value="Application id"/>
+                    </properties>
+                  </component>
+                  <component id="f1aef" class="javax.swing.JTextField" binding="applicationIdTextField">
+                    <constraints>
+                      <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                        <preferred-size width="150" height="-1"/>
+                      </grid>
+                    </constraints>
+                    <properties/>
                   </component>
                 </children>
               </grid>
