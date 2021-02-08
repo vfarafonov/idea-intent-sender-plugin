@@ -1,4 +1,4 @@
-package com.distillery.intentsender.utils
+package com.distillery.intentsender.utils.documentlisteners
 
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
@@ -6,15 +6,15 @@ import javax.swing.event.DocumentListener
 /** No op implementation. Allows to override only some of [DocumentListener] callbacks keeping code readable. */
 abstract class SilentDocumentListener : DocumentListener {
 
-    override fun insertUpdate(e: DocumentEvent) {
+    override fun insertUpdate(event: DocumentEvent) {
         // No-op
     }
 
-    override fun removeUpdate(e: DocumentEvent) {
+    override fun removeUpdate(event: DocumentEvent) {
         // No-op
     }
 
-    override fun changedUpdate(e: DocumentEvent) {
+    override fun changedUpdate(event: DocumentEvent) {
         // No-op
     }
 }

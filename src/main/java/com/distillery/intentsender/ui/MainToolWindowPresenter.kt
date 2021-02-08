@@ -249,6 +249,10 @@ class MainToolWindowPresenter(
         view.displaySelectedFlags(selectedFlags)
     }
 
+    override fun onApplicationIdChanged(appId: String) {
+        view.setUser(appId)
+    }
+
     private inner class SendAdbCommandWorker(
         private val command: Command
     ) : SwingWorker<String?, String?>() {

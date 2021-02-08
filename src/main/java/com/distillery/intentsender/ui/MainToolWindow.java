@@ -1,8 +1,11 @@
 package com.distillery.intentsender.ui;
 
+import android.util.Log;
 import com.android.ddmlib.IDevice;
-import com.distillery.intentsender.utils.ErrorRemovalDocumentListener;
+import com.distillery.intentsender.utils.documentlisteners.ErrorRemovalDocumentListener;
 import com.distillery.intentsender.utils.JLabelExtensionsKt;
+import com.distillery.intentsender.utils.documentlisteners.SilentDocumentListener;
+import com.distillery.intentsender.utils.documentlisteners.TextChangedListener;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.util.TreeJavaClassChooserDialog;
 import com.intellij.openapi.project.Project;
@@ -18,11 +21,13 @@ import com.distillery.intentsender.models.ExtraField;
 import com.distillery.intentsender.models.IntentFlags;
 import com.distillery.intentsender.adb.AdbHelper;
 import com.distillery.intentsender.ui.views.*;
+import kotlin.Unit;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableColumn;
 import java.awt.*;
@@ -94,7 +99,7 @@ public class MainToolWindow implements MainToolWindowContract.View {
 		historyButton.addActionListener(__ -> presenter_.onShowHistoryClicked());
 		showTerminalOutputButton.addActionListener(__ -> presenter_.onShowTerminalOutputClicked());
 		componentTextField.getDocument().addDocumentListener(new ErrorRemovalDocumentListener(componentLabel));
-		applicationIdTextField.getDocument().addDocumentListener(new ErrorRemovalDocumentListener(applicationIdLabel));
+		setUpApplicationIdField();
 
 		// Initialize ComboBox
 		devicesComboBox.setRenderer(new DevicesListRenderer());
@@ -121,6 +126,17 @@ public class MainToolWindow implements MainToolWindowContract.View {
 		sendFeedbackButton.setBorderPainted(false);
 		sendFeedbackButton.setOpaque(false);
 		sendFeedbackButton.addActionListener(__ -> presenter_.onSendFeedbackClicked());
+	}
+
+	private void setUpApplicationIdField() {
+		applicationIdTextField.getDocument().addDocumentListener(new ErrorRemovalDocumentListener(applicationIdLabel));
+		applicationIdTextField.getDocument().addDocumentListener(
+				new TextChangedListener(text -> {
+					SwingUtilities.invokeLater(() -> {
+						presenter_.onApplicationIdChanged(text);
+					});
+					return Unit.INSTANCE;
+				}));
 	}
 
 	JPanel getContent() {

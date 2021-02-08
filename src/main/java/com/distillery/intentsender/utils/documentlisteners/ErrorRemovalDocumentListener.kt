@@ -1,5 +1,6 @@
-package com.distillery.intentsender.utils
+package com.distillery.intentsender.utils.documentlisteners
 
+import com.distillery.intentsender.utils.hideError
 import javax.swing.JLabel
 import javax.swing.event.DocumentEvent
 
@@ -8,11 +9,11 @@ class ErrorRemovalDocumentListener(
     private val textField: JLabel
 ) : SilentDocumentListener() {
 
-    override fun insertUpdate(e: DocumentEvent) {
+    override fun insertUpdate(event: DocumentEvent) {
         textField.hideError()
     }
 
-    override fun removeUpdate(e: DocumentEvent) {
+    override fun removeUpdate(event: DocumentEvent) {
         textField.hideError()
     }
 }

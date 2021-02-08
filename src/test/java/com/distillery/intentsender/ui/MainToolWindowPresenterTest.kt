@@ -18,6 +18,14 @@ class MainToolWindowPresenterTest {
     private val presenter = MainToolWindowPresenter(view, project, commandParamsValidator)
 
     @Test
+    fun `user set to view when application id changes`() {
+        val appIdStub = "stub"
+        presenter.onApplicationIdChanged(appIdStub)
+
+        verify(view).setUser(appIdStub)
+    }
+
+    @Test
     fun `presenter tells view to display errors if command is invalid`() {
         val errors = listOf(Error.APPLICATION_ID_MISSING)
         whenever(commandParamsValidator.validate(any()))

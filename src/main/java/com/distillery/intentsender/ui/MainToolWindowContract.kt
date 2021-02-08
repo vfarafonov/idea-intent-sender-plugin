@@ -90,5 +90,7 @@ interface MainToolWindowContract {
         fun onFlagsClicked()
 
         fun onFlagsSelected(newFlags: List<IntentFlags>)
+
+        fun onApplicationIdChanged(appId: String)
     }
 }
