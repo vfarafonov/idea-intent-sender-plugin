@@ -14,8 +14,8 @@ object HistoryUtils {
      * Saves command to history list
      */
     fun saveCommand(command: Command) {
-        val commandList = mutableListOf<Command>().also {
-            it.addAll(readCommandsFromProperties())
+        val commandList = mutableListOf<Command>().apply {
+            addAll(readCommandsFromProperties())
         }
 
         while (commandList.size >= HISTORY_COUNT) {
