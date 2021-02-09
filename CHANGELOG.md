@@ -4,6 +4,7 @@
 
 ## [Unreleased]
 ### Added
+- Application Id is now a separate field to avoid any user confusion
 
 ### Changed
 

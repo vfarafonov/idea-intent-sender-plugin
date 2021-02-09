@@ -6,11 +6,14 @@ import com.intellij.facet.FacetManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi.PsiClass
-import com.distillery.intentsender.models.Command
+import com.distillery.intentsender.domain.command.Command
 import com.distillery.intentsender.models.ExtraField
 import com.distillery.intentsender.models.IntentFlags
 import com.distillery.intentsender.adb.AdbHelper
-import com.distillery.intentsender.utils.HistoryUtils
+import com.distillery.intentsender.domain.command.CommandParamsValidator
+import com.distillery.intentsender.domain.command.CommandParamsValidator.*
+import com.distillery.intentsender.data.history.HistoryUtils
+import com.distillery.intentsender.utils.exhaustive
 import org.jetbrains.android.dom.manifest.Manifest
 import org.jetbrains.android.facet.AndroidFacet
 import org.jetbrains.android.facet.AndroidRootUtil
@@ -24,7 +27,8 @@ private const val ERROR_UNKNOWN = "Unknown error"
 
 class MainToolWindowPresenter(
     private val view: MainToolWindowContract.View,
-    private val project: Project
+    private val project: Project,
+    private val commandParamsValidator: CommandParamsValidator,
 ) : MainToolWindowContract.Presenter {
 
     private val devicesListener: IDeviceChangeListener = DevicesListener()
@@ -144,12 +148,12 @@ class MainToolWindowPresenter(
         user: String?,
         extras: List<ExtraField>,
         type: AdbHelper.CommandType,
+        applicationId: String?,
     ) {
         // Check if device is selected
         if (selectedDevice == null) {
             return
         }
-        view.enableStartButtons(false)
 
         val command = Command(
             action,
@@ -160,8 +164,24 @@ class MainToolWindowPresenter(
             user,
             extras,
             selectedFlags,
-            type
+            type,
+            applicationId,
         )
+        val validationResult = commandParamsValidator.validate(command)
+
+        when (validationResult) {
+            ValidationResult.Valid -> sendCommand(command)
+            is ValidationResult.Invalid -> handleCommandParamsErrors(validationResult)
+        }.exhaustive
+    }
+
+    private fun handleCommandParamsErrors(validationResult: ValidationResult.Invalid) {
+        view.displayParamsErrors(validationResult.errors)
+    }
+
+    private fun sendCommand(command: Command) {
+        view.enableStartButtons(false)
+
         SendAdbCommandWorker(command).execute()
     }
 
@@ -227,6 +247,10 @@ class MainToolWindowPresenter(
         selectedFlags = flags
 
         view.displaySelectedFlags(selectedFlags)
+    }
+
+    override fun onApplicationIdChanged(appId: String) {
+        view.setUser(appId)
     }
 
     private inner class SendAdbCommandWorker(
@@ -303,6 +327,13 @@ class MainToolWindowPresenter(
 
         override fun deviceChanged(iDevice: IDevice, i: Int) {
             updateDevicesList()
+        }
+    }
+
+    companion object Factory {
+
+        fun create(view: MainToolWindowContract.View, project: Project): MainToolWindowPresenter {
+            return MainToolWindowPresenter(view, project, CommandParamsValidator.create())
         }
     }
 }

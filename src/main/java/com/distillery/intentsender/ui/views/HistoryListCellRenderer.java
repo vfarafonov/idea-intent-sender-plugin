@@ -5,7 +5,7 @@ import java.awt.Component;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 
-import com.distillery.intentsender.models.Command;
+import com.distillery.intentsender.domain.command.Command;
 
 /**
  * Created by vfarafonov on 08.09.2015.

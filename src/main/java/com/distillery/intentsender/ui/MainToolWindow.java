@@ -1,6 +1,12 @@
 package com.distillery.intentsender.ui;
 
+import android.util.Log;
 import com.android.ddmlib.IDevice;
+import com.distillery.intentsender.utils.documentlisteners.ErrorRemovalDocumentListener;
+import com.distillery.intentsender.utils.JLabelExtensionsKt;
+import com.distillery.intentsender.utils.documentlisteners.SilentDocumentListener;
+import com.distillery.intentsender.utils.documentlisteners.TextChangedListener;
+import com.intellij.icons.AllIcons;
 import com.intellij.ide.util.TreeJavaClassChooserDialog;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
@@ -10,16 +16,18 @@ import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
-import com.distillery.intentsender.models.Command;
+import com.distillery.intentsender.domain.command.Command;
 import com.distillery.intentsender.models.ExtraField;
 import com.distillery.intentsender.models.IntentFlags;
 import com.distillery.intentsender.adb.AdbHelper;
 import com.distillery.intentsender.ui.views.*;
+import kotlin.Unit;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableColumn;
 import java.awt.*;
@@ -27,12 +35,14 @@ import java.awt.event.ItemEvent;
 import java.io.File;
 import java.util.List;
 
+import static com.distillery.intentsender.domain.command.CommandParamsValidator.*;
+
 public class MainToolWindow implements MainToolWindowContract.View {
 	public static final String ISSUES_LINK = "https://github.com/WeezLabs/idea-intent-sender-plugin/issues";
 	public static final String EMPTY_OUTPUT = "No data to display";
 	private static final int FADEOUT_TIME = 2000;
 	private static final String COMMAND_SUCCESS = "Command was successfully sent";
-	private final ExtrasTableModel tableModel_;
+	private final ExtrasTableModel tableModel_ = new ExtrasTableModel();
 	private JPanel toolWindowContent;
 	private JTable extrasTable;
 	private JButton addExtraButton;
@@ -59,24 +69,22 @@ public class MainToolWindow implements MainToolWindowContract.View {
 	private JButton sendFeedbackButton;
 	private JButton showTerminalOutputButton;
 	private AutoCompleteComboBox actionsComboBox;
-	private ToolWindow mainToolWindow;
+	private JTextField applicationIdTextField;
+	private JLabel applicationIdLabel;
+    private JLabel componentLabel;
+    private ToolWindow mainToolWindow;
 
 	private final MainToolWindowContract.Presenter presenter_;
 
 	@SuppressWarnings("unchecked")
 	public MainToolWindow(ToolWindow toolWindow, Project project) {
 		mainToolWindow = toolWindow;
+		presenter_ = MainToolWindowPresenter.Factory.create(this, project);
+		initViews();
+		presenter_.onViewStart();
+	}
 
-		presenter_ = new MainToolWindowPresenter(this, project);
-
-		// Initialize ComboBox
-		devicesComboBox.setRenderer(new DevicesListRenderer());
-		devicesComboBox.setMaximumRowCount(10);
-		devicesComboBox.addItemListener(itemEvent -> {
-			if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
-				presenter_.onDeviceSelected((IDevice) itemEvent.getItem());
-			}
-		});
+	private void initViews() {
 		locateAdbButton.addActionListener(__ -> presenter_.onLocateAdbClicked());
 		updateDevices.addActionListener(__ -> presenter_.onUpdateDevicesClicked());
 		sendIntentButton.addActionListener(e -> sendCommand(AdbHelper.CommandType.BROADCAST));
@@ -89,9 +97,20 @@ public class MainToolWindow implements MainToolWindowContract.View {
 			updateTableVisibility();
 		});
 		historyButton.addActionListener(__ -> presenter_.onShowHistoryClicked());
+		showTerminalOutputButton.addActionListener(__ -> presenter_.onShowTerminalOutputClicked());
+		componentTextField.getDocument().addDocumentListener(new ErrorRemovalDocumentListener(componentLabel));
+		setUpApplicationIdField();
+
+		// Initialize ComboBox
+		devicesComboBox.setRenderer(new DevicesListRenderer());
+		devicesComboBox.setMaximumRowCount(10);
+		devicesComboBox.addItemListener(itemEvent -> {
+			if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
+				presenter_.onDeviceSelected((IDevice) itemEvent.getItem());
+			}
+		});
 
 		// Set up extras table
-		tableModel_ = new ExtrasTableModel();
 		extrasTable.setModel(tableModel_);
 		extrasTable.setDefaultRenderer(ExtraField.ExtrasTypes.class, new ExtrasTypeCellRenderer());
 		extrasTable.setDefaultEditor(ExtraField.ExtrasTypes.class, new ExtrasTypeCellEditor());
@@ -103,12 +122,21 @@ public class MainToolWindow implements MainToolWindowContract.View {
 			updateTableVisibility();
 		}));
 
+		// Set up Feedback button
 		sendFeedbackButton.setBorderPainted(false);
 		sendFeedbackButton.setOpaque(false);
 		sendFeedbackButton.addActionListener(__ -> presenter_.onSendFeedbackClicked());
-		showTerminalOutputButton.addActionListener(__ -> presenter_.onShowTerminalOutputClicked());
+	}
 
-		presenter_.onViewStart();
+	private void setUpApplicationIdField() {
+		applicationIdTextField.getDocument().addDocumentListener(new ErrorRemovalDocumentListener(applicationIdLabel));
+		applicationIdTextField.getDocument().addDocumentListener(
+				new TextChangedListener(text -> {
+					SwingUtilities.invokeLater(() -> {
+						presenter_.onApplicationIdChanged(text);
+					});
+					return Unit.INSTANCE;
+				}));
 	}
 
 	JPanel getContent() {
@@ -233,7 +261,8 @@ public class MainToolWindow implements MainToolWindowContract.View {
 				componentTextField.getText(),
 				user,
 				tableModel_.getValues(),
-				type
+				type,
+				applicationIdTextField.getText()
 		);
 	}
 
@@ -321,7 +350,7 @@ public class MainToolWindow implements MainToolWindowContract.View {
 	}
 
 	@Override
-	public void showCommandsFromHistoryChooser(@NotNull List<? extends Command> commandsHistory) {
+	public void showCommandsFromHistoryChooser(@NotNull List<Command> commandsHistory) {
 		JBList commandsList = new JBList(commandsHistory);
 		commandsList.setCellRenderer(new HistoryListCellRenderer());
 		commandsList.setEmptyText("No data to display");
@@ -349,6 +378,7 @@ public class MainToolWindow implements MainToolWindowContract.View {
 		dataTextField.setText(command.getData());
 		categoryTextField.setText(command.getCategory());
 		mimeTextField.setText(command.getMimeType());
+		applicationIdTextField.setText(command.getApplicationId());
 		componentTextField.setText(command.getComponent());
 		userTextField.setText(command.getUser());
 		displaySelectedFlags(command.getFlags());
@@ -371,5 +401,26 @@ public class MainToolWindow implements MainToolWindowContract.View {
 		JBScrollPane scrollPane = new JBScrollPane(textArea);
 		scrollPane.setPreferredSize(new Dimension(toolWindowContent.getWidth(), (int) (toolWindowContent.getHeight() * 0.5f)));
 		JOptionPane.showMessageDialog(toolWindowContent, scrollPane, "Last command output", JOptionPane.PLAIN_MESSAGE);
+	}
+
+	@Override
+	public void displayParamsErrors(@NotNull List<? extends ValidationResult.Invalid.Error> errors) {
+		errors.forEach(error -> {
+            if (error == ValidationResult.Invalid.Error.APPLICATION_ID_MISSING) {
+                showApplicationIdMissingError();
+            } else if (error == ValidationResult.Invalid.Error.COMPONENT_MISSING) {
+                showComponentMissingError();
+            }
+		});
+	}
+
+    private void showComponentMissingError() {
+        JLabelExtensionsKt.showError(componentLabel, AllIcons.General.Error,
+                "Component must be set when application id is set");
+    }
+
+    private void showApplicationIdMissingError() {
+		JLabelExtensionsKt.showError(applicationIdLabel, AllIcons.General.Error,
+				"Application id must be set when component is set");
 	}
 }

@@ -1,12 +1,13 @@
 package com.distillery.intentsender.ui
 
 import com.android.ddmlib.IDevice
-import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiClass
-import com.distillery.intentsender.models.Command
+import com.distillery.intentsender.adb.AdbHelper
+import com.distillery.intentsender.domain.command.Command
 import com.distillery.intentsender.models.ExtraField
 import com.distillery.intentsender.models.IntentFlags
-import com.distillery.intentsender.adb.AdbHelper
+import com.distillery.intentsender.domain.command.CommandParamsValidator.ValidationResult
+import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiClass
 import java.io.File
 
 interface MainToolWindowContract {
@@ -46,6 +47,8 @@ interface MainToolWindowContract {
         fun showFlagsSelection(allFlags: List<IntentFlags>, selectedFlags: List<IntentFlags>)
 
         fun displaySelectedFlags(selectedFlags: List<IntentFlags>)
+
+        fun displayParamsErrors(errors: List<ValidationResult.Invalid.Error>)
     }
 
     interface Presenter {
@@ -77,6 +80,7 @@ interface MainToolWindowContract {
             user: String?,
             extras: List<ExtraField>,
             type: AdbHelper.CommandType,
+            applicationId: String?,
         )
 
         fun onPickComponentClicked()
@@ -86,5 +90,7 @@ interface MainToolWindowContract {
         fun onFlagsClicked()
 
         fun onFlagsSelected(newFlags: List<IntentFlags>)
+
+        fun onApplicationIdChanged(appId: String)
     }
 }
