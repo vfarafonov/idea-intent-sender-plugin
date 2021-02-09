@@ -1,9 +1,7 @@
 package com.distillery.intentsender.domain.command
 
-import com.distillery.intentsender.adb.AdbHelper.CommandType
 import com.distillery.intentsender.domain.command.CommandParamsValidator.ValidationResult
-import com.distillery.intentsender.domain.command.CommandParamsValidator.ValidationResult.Invalid.Error.APPLICATION_ID_MISSING
-import com.distillery.intentsender.domain.command.CommandParamsValidator.ValidationResult.Invalid.Error.COMPONENT_MISSING
+import com.distillery.intentsender.domain.command.CommandParamsValidator.ValidationResult.Invalid.Error.*
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -34,6 +32,17 @@ class CommandParamsValidatorTest {
         val result = validator.validate(command)
 
         assertResultIsInvalid(result, APPLICATION_ID_MISSING)
+    }
+
+    @Test
+    fun `error returned when component contains application`() {
+        val command = createCommandStub(
+            component = "appId/component_stub"
+        )
+
+        val result = validator.validate(command)
+
+        assertResultIsInvalid(result, COMPONENT_HAS_APPLICATION_ID)
     }
 
     private fun assertResultIsInvalid(
