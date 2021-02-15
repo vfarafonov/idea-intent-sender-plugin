@@ -1,10 +1,13 @@
 package com.distillery.intentsender.ui;
 
-import android.util.Log;
 import com.android.ddmlib.IDevice;
-import com.distillery.intentsender.utils.documentlisteners.ErrorRemovalDocumentListener;
+import com.distillery.intentsender.adb.AdbHelper;
+import com.distillery.intentsender.domain.command.Command;
+import com.distillery.intentsender.models.ExtraField;
+import com.distillery.intentsender.models.IntentFlags;
+import com.distillery.intentsender.ui.views.*;
 import com.distillery.intentsender.utils.JLabelExtensionsKt;
-import com.distillery.intentsender.utils.documentlisteners.SilentDocumentListener;
+import com.distillery.intentsender.utils.documentlisteners.ErrorRemovalDocumentListener;
 import com.distillery.intentsender.utils.documentlisteners.TextChangedListener;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.util.TreeJavaClassChooserDialog;
@@ -16,18 +19,12 @@ import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
-import com.distillery.intentsender.domain.command.Command;
-import com.distillery.intentsender.models.ExtraField;
-import com.distillery.intentsender.models.IntentFlags;
-import com.distillery.intentsender.adb.AdbHelper;
-import com.distillery.intentsender.ui.views.*;
 import kotlin.Unit;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableColumn;
 import java.awt.*;
@@ -35,7 +32,8 @@ import java.awt.event.ItemEvent;
 import java.io.File;
 import java.util.List;
 
-import static com.distillery.intentsender.domain.command.CommandParamsValidator.*;
+import static com.distillery.intentsender.domain.command.CommandParamsValidator.ValidationResult;
+import static com.distillery.intentsender.domain.command.CommandParamsValidator.ValidationResult.Invalid.Error.*;
 
 public class MainToolWindow implements MainToolWindowContract.View {
 	public static final String ISSUES_LINK = "https://github.com/WeezLabs/idea-intent-sender-plugin/issues";
@@ -406,18 +404,26 @@ public class MainToolWindow implements MainToolWindowContract.View {
 	@Override
 	public void displayParamsErrors(@NotNull List<? extends ValidationResult.Invalid.Error> errors) {
 		errors.forEach(error -> {
-            if (error == ValidationResult.Invalid.Error.APPLICATION_ID_MISSING) {
+            if (error == APPLICATION_ID_MISSING) {
                 showApplicationIdMissingError();
-            } else if (error == ValidationResult.Invalid.Error.COMPONENT_MISSING) {
-                showComponentMissingError();
-            }
+            } else if (error == COMPONENT_MISSING) {
+				showComponentMissingError();
+			} else if (error == COMPONENT_HAS_APPLICATION_ID) {
+				showComponentHasApplicationIdError();
+			}
 		});
 	}
 
-    private void showComponentMissingError() {
+	private void showComponentMissingError() {
         JLabelExtensionsKt.showError(componentLabel, AllIcons.General.Error,
                 "Component must be set when application id is set");
     }
+
+	private void showComponentHasApplicationIdError() {
+		String message = "Component must not contain application id. Use Application Id field." +
+				"\nHint: move everything to the left of the slash";
+		JLabelExtensionsKt.showError(componentLabel, AllIcons.General.Error, message);
+	}
 
     private void showApplicationIdMissingError() {
 		JLabelExtensionsKt.showError(applicationIdLabel, AllIcons.General.Error,

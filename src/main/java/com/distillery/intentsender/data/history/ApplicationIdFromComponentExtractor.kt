@@ -1,8 +1,7 @@
 package com.distillery.intentsender.data.history
 
 import com.distillery.intentsender.domain.command.Command
-
-private const val APPLICATION_ID_IN_COMPONENT_SEPARATOR = '/'
+import com.distillery.intentsender.utils.APPLICATION_ID_IN_COMPONENT_SEPARATOR
 
 /**
  * Extracts application id part from component and stores is to corresponding field.
