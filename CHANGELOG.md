@@ -7,6 +7,7 @@
 - Application Id is now a separate field to avoid any user confusion
 
 ### Changed
+- Presentation of History items updated
 
 ### Deprecated
 
