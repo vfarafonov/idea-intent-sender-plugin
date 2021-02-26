@@ -6,6 +6,7 @@ import com.distillery.intentsender.domain.command.Command;
 import com.distillery.intentsender.models.ExtraField;
 import com.distillery.intentsender.models.IntentFlags;
 import com.distillery.intentsender.ui.views.*;
+import com.distillery.intentsender.ui.views.history.HistoryChooserDialog;
 import com.distillery.intentsender.utils.JLabelExtensionsKt;
 import com.distillery.intentsender.utils.documentlisteners.ErrorRemovalDocumentListener;
 import com.distillery.intentsender.utils.documentlisteners.TextChangedListener;
@@ -191,8 +192,11 @@ public class MainToolWindow implements MainToolWindowContract.View {
 
 	@Override
 	public void displaySelectedFlags(@NotNull List<? extends IntentFlags> selectedFlags) {
-		flagsTextField.setText(selectedFlags.toString());
-	}
+        String text = selectedFlags.size() > 0
+                ? selectedFlags.toString()
+                : IntentFlags.NONE.toString();
+        flagsTextField.setText(text);
+    }
 
 	@Override
 	public void setLocateAdbButtonVisible(boolean isVisible) {
@@ -349,24 +353,9 @@ public class MainToolWindow implements MainToolWindowContract.View {
 
 	@Override
 	public void showCommandsFromHistoryChooser(@NotNull List<Command> commandsHistory) {
-		JBList commandsList = new JBList(commandsHistory);
-		commandsList.setCellRenderer(new HistoryListCellRenderer());
-		commandsList.setEmptyText("No data to display");
-		commandsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-		String[] buttons = {"OK", "Cancel"};
-		int result = JOptionPane.showOptionDialog(
-				toolWindowContent,
-				commandsList,
-				"Command history",
-				JOptionPane.YES_NO_CANCEL_OPTION,
-				JOptionPane.PLAIN_MESSAGE,
-				null,
-				buttons,
-				buttons[0]
-		);
-		if (result == 0) {
-			presenter_.onCommandSelectedFromHistory((Command) commandsList.getSelectedValue());
+		Command command = HistoryChooserDialog.show(toolWindowContent, commandsHistory);
+		if (command != null) {
+			presenter_.onCommandSelectedFromHistory(command);
 		}
 	}
 
@@ -382,7 +371,7 @@ public class MainToolWindow implements MainToolWindowContract.View {
 		displaySelectedFlags(command.getFlags());
 		tableModel_.removeAllRows();
 		List<ExtraField> extras = command.getExtras();
-		if (extras != null && extras.size() > 0) {
+		if (extras.size() > 0) {
 			for (ExtraField extra : extras) {
 				tableModel_.addRow(extra);
 			}
