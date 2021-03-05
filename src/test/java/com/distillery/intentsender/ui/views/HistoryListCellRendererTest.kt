@@ -37,13 +37,6 @@ class HistoryListCellRendererTest(
 
 }
 
-private fun String.trimIndentAndRemoveNewLineChars(): String {
-    return trimIndent()
-        .filter {
-            it != '\n'
-        }
-}
-
 private val BROADCAST_COMMAND = Command(
     action = "stub_action",
     data = "stub_data",
@@ -110,3 +103,10 @@ private val SERVICE_OUTPUT = """
     <br>&nbsp;&nbsp;&nbsp;&nbsp;Has extras
     </html>
 """.trimIndentAndRemoveNewLineChars()
+
+private fun String.trimIndentAndRemoveNewLineChars(): String {
+    return trimIndent()
+        .filter {
+            it != '\n'
+        }
+}

@@ -42,18 +42,19 @@ class HistoryListCellRenderer : DefaultListCellRenderer() {
 object HistoryTextBuilder {
 
     fun buildText(command: Command): String {
-        return StringBuilder("<html>")
-            .append(getCommandSubjectText(command))
-            .append(getActionText(command))
-            .append(getAppIdText(command))
-            .append(getComponentText(command))
-            .append(getDataText(command))
-            .append(getCategoryText(command))
-            .append(getMimeTypeText(command))
-            .append(getFlagsText(command))
-            .append(getExtrasText(command))
-            .append("</html>")
-            .toString()
+        return buildString {
+            append("<html>")
+            append(getCommandSubjectText(command))
+            append(getActionText(command))
+            append(getAppIdText(command))
+            append(getComponentText(command))
+            append(getDataText(command))
+            append(getCategoryText(command))
+            append(getMimeTypeText(command))
+            append(getFlagsText(command))
+            append(getExtrasText(command))
+            append("</html>")
+        }
     }
 
     private fun getExtrasText(command: Command): String {
@@ -102,7 +103,7 @@ object HistoryTextBuilder {
      * Adds given prefix with colon to a text if text is not blank. Tabulates the text.
      * If text is null then empty string is returned.
      */
-    private fun prepareTextWithPrefixIfNotNullOrReturnEmpty( prefix: String, text: String?): String {
+    private fun prepareTextWithPrefixIfNotNullOrReturnEmpty(prefix: String, text: String?): String {
         return if (!text.isNullOrBlank()) {
             "${prefix}: ${text.ellipsize()}".newLineTabbed()
         } else {

@@ -192,11 +192,15 @@ public class MainToolWindow implements MainToolWindowContract.View {
 
 	@Override
 	public void displaySelectedFlags(@NotNull List<? extends IntentFlags> selectedFlags) {
-        String text = selectedFlags.size() > 0
-                ? selectedFlags.toString()
-                : IntentFlags.NONE.toString();
-        flagsTextField.setText(text);
+		String text = buildFlagsText(selectedFlags);
+		flagsTextField.setText(text);
     }
+
+	private String buildFlagsText(@NotNull List<? extends IntentFlags> selectedFlags) {
+		return selectedFlags.size() > 0
+					? selectedFlags.toString()
+					: IntentFlags.NONE.toString();
+	}
 
 	@Override
 	public void setLocateAdbButtonVisible(boolean isVisible) {
