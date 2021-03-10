@@ -23,7 +23,7 @@
                 id="Intent Sender"
                 secondary="true"
                 anchor="right"
-                factoryClass="intentsender.ui.MainToolWindowFactory"
+                factoryClass="com.distillery.intentsender.ui.MainToolWindowFactory"
         />
     </extensions>
 </idea-plugin>

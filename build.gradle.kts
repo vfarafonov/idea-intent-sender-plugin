@@ -44,6 +44,8 @@ repositories {
 }
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.14.2")
+    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
+    testImplementation("org.mockito:mockito-core:2.23.0")
 }
 
 // Configure gradle-intellij-plugin plugin.
@@ -119,7 +121,6 @@ tasks {
     }
 
     publishPlugin {
-        dependsOn("patchChangelog")
         token(System.getenv("PUBLISH_TOKEN"))
         // pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
         // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:

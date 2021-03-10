@@ -3,6 +3,11 @@
 # Intent Sender Changelog
 
 ## [Unreleased]
+### Added
+- Application Id is now a separate field to avoid any user confusion
+
+### Changed
+- Presentation of the History items is updated
 
 ## [0.10.0]
 ### Changed
