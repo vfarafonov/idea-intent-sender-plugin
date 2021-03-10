@@ -7,15 +7,8 @@
 - Application Id is now a separate field to avoid any user confusion
 
 ### Changed
-- Presentation of thr History items is updated
+- Presentation of the History items is updated
 
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
 ## [0.10.0]
 ### Changed
 - Updating plugin so it is supported by the latest IDEA versions.
