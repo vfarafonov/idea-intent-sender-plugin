@@ -3,6 +3,8 @@
 # Intent Sender Changelog
 
 ## [Unreleased]
+
+## [0.11.0]
 ### Added
 - Application Id is now a separate field to avoid any user confusion
 
