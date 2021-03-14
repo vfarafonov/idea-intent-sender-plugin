@@ -191,40 +191,8 @@ class MainToolWindowPresenter(
 
     override fun onComponentSelected(selectedClass: PsiClass?) {
         if (selectedClass != null) {
-            val androidPackage = getAndroidPackage(selectedClass)
-            var fullComponentName = selectedClass.qualifiedName
-            if (!androidPackage.isNullOrEmpty()
-                && fullComponentName != null
-            ) {
-                val packageIndex = fullComponentName.indexOf(androidPackage)
-                if (packageIndex != -1) {
-                    val builder = StringBuilder(fullComponentName)
-                    fullComponentName = builder.insert(packageIndex + androidPackage.length, "/").toString()
-                }
-                view.setUser(androidPackage)
-            }
-            view.setComponent(fullComponentName)
+            view.setComponent(selectedClass.qualifiedName)
         }
-    }
-
-    /**
-     * Gets android app package from selected class
-     *
-     * @return Package or null if package cannot be parsed from sources
-     */
-    private fun getAndroidPackage(selectedClass: PsiClass): String? {
-        val projectRootManager = ProjectRootManager.getInstance(selectedClass.project)
-        val selectedClassVirtualFile = selectedClass.containingFile.virtualFile
-        val module = projectRootManager.fileIndex.getModuleForFile(selectedClassVirtualFile)
-            ?: return null
-        val facetManager = FacetManager.getInstance(module)
-        val facet = facetManager.getFacetByType(AndroidFacet.ID) ?: return null
-        val manifestFile = AndroidRootUtil.getPrimaryManifestFile(facet) ?: return null
-        val manifest = AndroidUtils.loadDomElement(facet.module, manifestFile, Manifest::class.java)
-            ?: return null
-        val rootPackage = manifest.getPackage()
-        // TODO(vfarafonov, 1/3/21): use application id instead of package from module's manifest.
-        return rootPackage.stringValue
     }
 
     override fun onFlagsClicked() {

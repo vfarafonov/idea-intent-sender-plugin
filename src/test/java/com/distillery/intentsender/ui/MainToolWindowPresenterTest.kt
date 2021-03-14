@@ -6,6 +6,7 @@ import com.distillery.intentsender.domain.command.CommandParamsValidator.Validat
 import com.distillery.intentsender.domain.command.CommandParamsValidator.ValidationResult.Invalid.Error
 import com.distillery.intentsender.testutils.stubMock
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiClass
 import com.nhaarman.mockitokotlin2.*
 import org.junit.Test
 
@@ -45,6 +46,18 @@ class MainToolWindowPresenterTest {
 
         verify(view).enableStartButtons(false)
         verify(view, never()).displayParamsErrors(any())
+    }
+
+    @Test
+    fun `component in view updated after it was selected`() {
+        val qualifiedNameStub = "stub"
+        val component: PsiClass = mock() {
+            on { qualifiedName } doReturn qualifiedNameStub
+        }
+
+        presenter.onComponentSelected(component)
+
+        verify(view).setComponent(qualifiedNameStub)
     }
 
     private fun callSendCommandClickedWithStubs() {
