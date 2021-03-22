@@ -2,6 +2,9 @@
 
 # Intent Sender Changelog
 
+## [0.13.0]
+
+
 ## [0.12.0]
 ### Fixed
 - Disable automatic package-based application id extraction from component string
