@@ -2,7 +2,11 @@
 
 # Intent Sender Changelog
 
-## [Unreleased]
+## [0.12.0]
+### Fixed
+- Disable automatic package-based application id extraction from component string
+
+## [0.11.0]
 ### Added
 - Application Id is now a separate field to avoid any user confusion
 
