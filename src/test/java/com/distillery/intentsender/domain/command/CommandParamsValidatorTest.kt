@@ -11,18 +11,6 @@ class CommandParamsValidatorTest {
     private val validator = CommandParamsValidator()
 
     @Test
-    fun `error returned when application id is set and component is not set`() {
-        val command = createCommandStub(
-            applicationId = "application_id_stub",
-            component = null
-        )
-
-        val result = validator.validate(command)
-
-        assertResultIsInvalid(result, COMPONENT_MISSING)
-    }
-
-    @Test
     fun `error returned when component is set and application id is not set`() {
         val command = createCommandStub(
             applicationId = null,

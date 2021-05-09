@@ -2,11 +2,11 @@ package com.distillery.intentsender.adb;
 
 import com.android.ddmlib.*;
 import com.android.tools.idea.sdk.AndroidSdks;
-import com.intellij.ide.util.PropertiesComponent;
-import com.intellij.openapi.project.Project;
 import com.distillery.intentsender.domain.command.Command;
 import com.distillery.intentsender.models.ExtraField;
 import com.distillery.intentsender.models.IntentFlags;
+import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.android.sdk.AndroidSdkUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -249,12 +249,18 @@ public class AdbHelper {
 			}
 		}
 		if (flags != null && flags.size() > 0) {
-			for (IntentFlags flag : flags) {
-				builder.append(flag.getCommand());
-			}
+			flags.forEach(flag -> {
+				if (flag != IntentFlags.NONE) {
+					builder.append(flag.getCommand());
+				}
+			});
 		}
 		if (user != null) {
 			builder.append(" --user '0'");
+		}
+		if (applicationId != null && applicationId.length() > 0) {
+			builder.append(" ")
+					.append(applicationId);
 		}
 		System.out.println("Command: " + builder.toString());
 		return builder.toString();
