@@ -11,7 +11,6 @@ class CommandParamsValidator {
         val errors = mutableListOf<Invalid.Error>()
 
         errors.addAll(validateComponent(command))
-        errors.addAll(validateApplicationId(command))
 
         return if (errors.isEmpty()) {
             Valid
@@ -35,15 +34,6 @@ class CommandParamsValidator {
         return errors
     }
 
-    /** Validates application id info. */
-    private fun validateApplicationId(command: Command): List<Invalid.Error> {
-        val errors = mutableListOf<Invalid.Error>()
-        if (!command.applicationId.isNullOrBlank() && command.component.isNullOrBlank()) {
-            errors.add(Invalid.Error.COMPONENT_MISSING)
-        }
-        return errors
-    }
-
     sealed class ValidationResult {
 
         object Valid : ValidationResult()
@@ -52,7 +42,6 @@ class CommandParamsValidator {
 
             enum class Error {
                 APPLICATION_ID_MISSING,
-                COMPONENT_MISSING,
                 COMPONENT_HAS_APPLICATION_ID,
             }
         }

@@ -34,7 +34,8 @@ import java.io.File;
 import java.util.List;
 
 import static com.distillery.intentsender.domain.command.CommandParamsValidator.ValidationResult;
-import static com.distillery.intentsender.domain.command.CommandParamsValidator.ValidationResult.Invalid.Error.*;
+import static com.distillery.intentsender.domain.command.CommandParamsValidator.ValidationResult.Invalid.Error.APPLICATION_ID_MISSING;
+import static com.distillery.intentsender.domain.command.CommandParamsValidator.ValidationResult.Invalid.Error.COMPONENT_HAS_APPLICATION_ID;
 
 public class MainToolWindow implements MainToolWindowContract.View {
 	public static final String ISSUES_LINK = "https://github.com/WeezLabs/idea-intent-sender-plugin/issues";
@@ -399,18 +400,11 @@ public class MainToolWindow implements MainToolWindowContract.View {
 		errors.forEach(error -> {
             if (error == APPLICATION_ID_MISSING) {
                 showApplicationIdMissingError();
-            } else if (error == COMPONENT_MISSING) {
-				showComponentMissingError();
-			} else if (error == COMPONENT_HAS_APPLICATION_ID) {
+            } else if (error == COMPONENT_HAS_APPLICATION_ID) {
 				showComponentHasApplicationIdError();
 			}
 		});
 	}
-
-	private void showComponentMissingError() {
-        JLabelExtensionsKt.showError(componentLabel, AllIcons.General.Error,
-                "Component must be set when application id is set");
-    }
 
 	private void showComponentHasApplicationIdError() {
 		String message = "Component must not contain application id. Use Application Id field." +
