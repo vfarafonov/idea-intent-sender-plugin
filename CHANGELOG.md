@@ -2,6 +2,10 @@
 
 # Intent Sender Changelog
 
+## [0.13.0]
+### Fixed
+- Allow setting application id without component
+
 ## [0.12.0]
 ### Fixed
 - Disable automatic package-based application id extraction from component string
