@@ -1,7 +1,9 @@
 common_templates:
   common_vars:
-      &vars_group_1
-        GROUP_VAR_1: "Group 1 var"
+    group_1: &vars_group_1
+      GROUP_VAR_1: "Group 1 var"
+    group_2: &vars_group_2
+      GROUP_VAR_2: "Group 2 var"
   scripts:
     - &echo_script
       name: Step 1 name
@@ -12,10 +14,12 @@ common_templates:
         echo $EXTERNAL_VAR
         echo "Group 1 Var is:"
         echo $GROUP_VAR_1
+        echo "Group 2 Var is:"
+        echo $GROUP_VAR_2
 
 workflows:
-  my-workflow:
-    name: Test workflow
+  my-workflow_1:
+    name: Test workflow 1
     instance_type: mac_mini
     max_build_duration: 30
     environment:
@@ -23,13 +27,18 @@ workflows:
         - group_1
       vars:
         <<: *vars_group_1
-        PUBLIC_ENV_VAR: "some public var"
+        PUBLIC_ENV_VAR: "some public var 1"
     scripts:
-      - |
-        # Separator
-        echo "----------"
       - *echo_script
-    publishing:
-      email:
-        recipients:
-          - vladfar23@gmail.com
+  my-workflow_2:
+    name: Test workflow 2
+    instance_type: mac_mini
+    max_build_duration: 30
+    environment:
+      groups:
+        - group_1
+      vars:
+        <<: *vars_group_2
+        PUBLIC_ENV_VAR: "some public var 2"
+    scripts:
+      - *echo_script
