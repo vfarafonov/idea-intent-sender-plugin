@@ -1,8 +1,8 @@
 common_templates:
   common_vars:
-    group_1: &vars_group_1
+    - &vars_group_1
       GROUP_VAR_1: "Group 1 var"
-    group_2: &vars_group_2
+    - &vars_group_2
       GROUP_VAR_2: "Group 2 var"
   scripts:
     - &echo_script_1
