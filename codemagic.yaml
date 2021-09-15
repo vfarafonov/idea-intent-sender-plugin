@@ -5,9 +5,22 @@ common_templates:
     group_2: &vars_group_2
       GROUP_VAR_2: "Group 2 var"
   scripts:
-    - &echo_script
+    - &echo_script_1
       name: Step 1 name
       script: |
+        echo "Running script 1"
+        echo "Script Var is:"
+        echo $PUBLIC_ENV_VAR
+        echo "App Var is:"
+        echo $EXTERNAL_VAR
+        echo "Group 1 Var is:"
+        echo $GROUP_VAR_1
+        echo "Group 2 Var is:"
+        echo $GROUP_VAR_2
+    - &echo_script_2
+      name: Step 1 name
+      script: |
+        echo "Running script 2"
         echo "Script Var is:"
         echo $PUBLIC_ENV_VAR
         echo "App Var is:"
@@ -29,7 +42,7 @@ workflows:
         <<: *vars_group_1
         PUBLIC_ENV_VAR: "some public var 1"
     scripts:
-      - *echo_script
+      - *echo_script_1
   my-workflow_2:
     name: Test workflow 2
     instance_type: mac_mini
@@ -41,4 +54,4 @@ workflows:
         <<: *vars_group_2
         PUBLIC_ENV_VAR: "some public var 2"
     scripts:
-      - *echo_script
+      - *echo_script_2
