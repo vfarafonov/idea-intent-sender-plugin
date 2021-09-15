@@ -4,12 +4,16 @@ workflows:
     instance_type: mac_mini
     max_build_duration: 30
     environment:
+      groups:
+        - group_1
       vars:
         PUBLIC_ENV_VAR: "some public var"
     scripts:
       - |
-        echo "Var is:"
+        echo "Script Var is:"
         echo $PUBLIC_ENV_VAR
+        echo "App Var is:"
+        echo $EXTERNAL_VAR
     publishing:
       email:
         recipients:
