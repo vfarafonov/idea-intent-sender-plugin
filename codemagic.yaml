@@ -1,3 +1,12 @@
+common_templates:
+  - &echo_script
+    name: Step 1 name
+    script: |
+      echo "Script Var is:"
+      echo $PUBLIC_ENV_VAR
+      echo "App Var is:"
+      echo $EXTERNAL_VAR
+
 workflows:
   my-workflow:
     name: Test workflow
@@ -9,13 +18,6 @@ workflows:
       vars:
         PUBLIC_ENV_VAR: "some public var"
     scripts:
-      - &echo_script
-        name: Step 1 name
-        script: |
-          echo "Script Var is:"
-          echo $PUBLIC_ENV_VAR
-          echo "App Var is:"
-          echo $EXTERNAL_VAR
       - |
         # Separator
         echo "----------"
