@@ -1,5 +1,5 @@
-common_templates:
-  common_vars:
+common:
+  vars:
     - &vars_group_1
       GROUP_VAR_1: "Group 1 var"
     - &vars_group_2
