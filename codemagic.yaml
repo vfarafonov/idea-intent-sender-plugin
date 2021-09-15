@@ -1,0 +1,16 @@
+workflows:
+  my-workflow:
+    name: Test workflow
+    instance_type: mac_mini
+    max_build_duration: 30
+    environment:
+      vars:
+        PUBLIC_ENV_VAR: "some public var"
+    scripts:
+      - |
+        echo "Var is:"
+        echo $PUBLIC_ENV_VAR
+    publishing:
+      email:
+        recipients:
+          - vladfar23@gmail.com
