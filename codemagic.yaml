@@ -9,11 +9,12 @@ workflows:
       vars:
         PUBLIC_ENV_VAR: "some public var"
     scripts:
-      - |
-        echo "Script Var is:"
-        echo $PUBLIC_ENV_VAR
-        echo "App Var is:"
-        echo $EXTERNAL_VAR
+      - name: Step 1 name
+        script: |
+          echo "Script Var is:"
+          echo $PUBLIC_ENV_VAR
+          echo "App Var is:"
+          echo $EXTERNAL_VAR
     publishing:
       email:
         recipients:
