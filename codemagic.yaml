@@ -4,6 +4,11 @@ common:
       GROUP_VAR_1: "Group 1 var"
     - &vars_group_2
       GROUP_VAR_2: "Group 2 var"
+  cache: &default_cache_paths
+    cache_paths:
+      - $HOME/.gradle/caches
+      - $HOME/Library/Caches/CocoaPods
+      - $FLUTTER_ROOT/.pub-cache
   scripts:
     - &echo_script_1
       name: Step 1 name
@@ -41,6 +46,8 @@ workflows:
       vars:
         <<: *vars_group_1
         PUBLIC_ENV_VAR: "some public var 1"
+    cache: 
+      <<: *default_cache_paths
     scripts:
       - *echo_script_1
   my-workflow_2:
